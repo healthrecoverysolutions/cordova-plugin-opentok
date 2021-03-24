@@ -105,7 +105,8 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             // Sort is still needed, because we need to sort from negative to positive for the z translation.
             Collections.sort(allStreamViews, new CustomComparator());
 
-            for (RunnableUpdateViews viewContainer : allStreamViews) {
+            for (int i = 0; i < allStreamViews.size(); i++) {
+                RunnableUpdateViews viewContainer  = allStreamViews.get(i);
                 // Set depth location of camera view based on CSS z-index.
                 // See: https://developer.android.com/reference/android/view/View.html#setTranslationZ(float)
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -113,7 +114,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 }
                 // If the zIndex is 0(default) bring the view to the top, last one wins.
                 // See: https://github.com/saghul/cordova-plugin-iosrtc/blob/5b6a180b324c8c9bac533fa481a457b74183c740/src/PluginMediaStreamRenderer.swift#L191
-                if(viewContainer.getZIndex() == 0) {
+                if(i == allStreamViews.size() - 1) {
                     if (viewContainer.mView instanceof GLSurfaceView) {
                         ((GLSurfaceView) viewContainer.mView).setZOrderOnTop(true);
                     } else {
@@ -985,7 +986,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                     JSONObject payload = new JSONObject();
                     try {
                         payload.put("platform", "Android");
-                        payload.put("cp_version", "3.4.3");
+                        payload.put("cp_version", "3.4.4");
                     } catch (JSONException e) {
                         Log.i(TAG, "Error creating payload json object");
                     }
