@@ -265,7 +265,12 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
 
         public void destroyPublisher() {
             ViewGroup parent = (ViewGroup) webView.getView().getParent();
-            parent.removeViewInLayout(this.mView);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                // removeView() will crash the app when a call ends on an Android version less than 9.
+                parent.removeViewInLayout(this.mView);
+            } else {
+                parent.removeView(this.mView);
+            }
             if (this.mPublisher != null) {
                 this.mPublisher.destroy();
                 this.mPublisher = null;
@@ -378,7 +383,12 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
 
         public void removeStreamView() {
             ViewGroup parent = (ViewGroup) webView.getView().getParent();
-            parent.removeViewInLayout(this.mView);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                // removeView() will crash the app when a call ends on an Android version less than 9.
+                parent.removeViewInLayout(this.mView);
+            } else {
+                parent.removeView(this.mView);
+            }
             if(mSubscriber != null) {
                 try {
                     mSession.unsubscribe(mSubscriber);
