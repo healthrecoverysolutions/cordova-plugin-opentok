@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-plugin-opentok"
-    version="3.4.4">
+    version="3.4.5">
 
     <name>OpenTokCordovaPlugin</name>
     <description>Add live video streaming to your Cordova Application</description>
@@ -34,8 +34,8 @@
           <param name="android-package" value="com.tokbox.cordova.OpenTokAndroidPlugin"/>
           <param name="onload" value="true" />
         </feature>
-      </config-file>  
-      
+      </config-file>
+
     </platform>
 
     <!-- ios -->
