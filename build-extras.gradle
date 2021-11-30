@@ -12,6 +12,7 @@ allprojects {
         jcenter()
         maven {
             url  "http://tokbox.bintray.com/maven"
+            allowInsecureProtocol = true
         }
     }
 }
