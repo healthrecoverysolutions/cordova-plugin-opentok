@@ -264,13 +264,19 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         }
 
         public void destroyPublisher() {
-            ViewGroup parent = (ViewGroup) webView.getView().getParent();
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-                // removeView() will crash the app when a call ends on an Android version less than 9.
-                parent.removeViewInLayout(this.mView);
-            } else {
-                parent.removeView(this.mView);
-            }
+            cordova.getActivity().runOnUiThread(
+                new Runnable() {
+                    public void run() {
+                        ViewGroup parent = (ViewGroup) webView.getView().getParent();
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                            // removeView() will crash the app when a call ends on an Android version less than 9.
+                            parent.removeViewInLayout(mView);
+                        } else {
+                            parent.removeView(mView);
+                        }
+                    }
+                });
+
             if (this.mPublisher != null) {
                 this.mPublisher.destroy();
                 this.mPublisher = null;
@@ -382,13 +388,19 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         }
 
         public void removeStreamView() {
-            ViewGroup parent = (ViewGroup) webView.getView().getParent();
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-                // removeView() will crash the app when a call ends on an Android version less than 9.
-                parent.removeViewInLayout(this.mView);
-            } else {
-                parent.removeView(this.mView);
-            }
+            cordova.getActivity().runOnUiThread(
+                new Runnable() {
+                    public void run() {
+                        ViewGroup parent = (ViewGroup) webView.getView().getParent();
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                            // removeView() will crash the app when a call ends on an Android version less than 9.
+                            parent.removeViewInLayout(mView);
+                        } else {
+                            parent.removeView(mView);
+                        }
+                    }
+                });
+
             if(mSubscriber != null) {
                 try {
                     mSession.unsubscribe(mSubscriber);
@@ -852,16 +864,20 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     }
 
     public void onConnectionDestroyed(Session arg0, Connection arg1) {
-        Log.i(TAG, "connection dropped: " + arg1.getConnectionId());
+        if (arg1!=null) {
+            Log.i(TAG, "connection dropped: " + arg1.getConnectionId());
 
-        connectionCollection.remove(arg1.getConnectionId());
-        JSONObject data = new JSONObject();
-        try {
-            JSONObject connection = createDataFromConnection(arg1);
-            data.put("connection", connection);
-        } catch (JSONException e) {
+            connectionCollection.remove(arg1.getConnectionId());
+            JSONObject data = new JSONObject();
+            try {
+                JSONObject connection = createDataFromConnection(arg1);
+                data.put("connection", connection);
+            } catch (JSONException e) {
+            }
+            triggerJSEvent("sessionEvents", "connectionDestroyed", data);
+        } else {
+            Log.i(TAG, "Connection id does not exist");
         }
-        triggerJSEvent("sessionEvents", "connectionDestroyed", data);
     }
 
     // signalListener
