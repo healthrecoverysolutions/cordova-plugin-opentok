@@ -55,6 +55,7 @@
       <framework src="libpthread.dylib" />
       <framework src="VideoToolbox.framework" />
       <framework src="src/ios/OpenTok.framework" custom="true" />
+      <framework src="src/ios/VonageWebRTC.framework" custom="true" />
       <framework src="AudioToolbox.framework" />
       <framework src="CoreData.framework" />
       <framework src="AVFoundation.framework" />
