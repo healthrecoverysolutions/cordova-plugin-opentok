@@ -268,12 +268,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 new Runnable() {
                     public void run() {
                         ViewGroup parent = (ViewGroup) webView.getView().getParent();
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-                            // removeView() will crash the app when a call ends on an Android version less than 9.
-                            parent.removeViewInLayout(mView);
-                        } else {
-                            parent.removeView(mView);
-                        }
+                        parent.removeView(mView);
                     }
                 });
 
