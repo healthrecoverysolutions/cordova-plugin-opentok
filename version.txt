@@ -1,0 +1,5 @@
+v3.4.6
+
+Base SDKs:
+Android: v2.22.3
+iOS: v2.23.0
