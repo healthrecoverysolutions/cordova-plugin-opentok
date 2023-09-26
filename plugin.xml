@@ -40,7 +40,11 @@
 
     <!-- ios -->
     <platform name="ios">
-      <pod name="OTXCFramework" spec="2.26.0" />
+      <podspec>
+        <pods use-frameworks="true">
+            <pod name="OTXCFramework" spec="~> 2.26.0" />
+        </pods>
+      </podspec>
       <asset src="www/opentok.js" target="opentok.js" />
 
       <header-file src="src/ios/UIView+Category.h" />
