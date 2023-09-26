@@ -57,7 +57,7 @@
     [payload setObject:@"3.4.5" forKey:@"cp_version"];
     NSMutableDictionary *logData = [[NSMutableDictionary alloc]init];
     [logData setObject:apiKey forKey:@"partner_id"];
-    [logData setObject:@"2.23.0" forKey:@"build"];
+    [logData setObject:@"2.26.0" forKey:@"build"];
     [logData setObject:@"https://github.com/opentok/cordova-plugin-opentok" forKey:@"source"];
     [logData setObject:@"info" forKey:@"payload_type"];
     [logData setObject:payload forKey:@"payload"];
@@ -411,6 +411,9 @@
     OTSubscriber* sub = [[OTSubscriber alloc] initWithStream:myStream delegate:self];
     sub.audioLevelDelegate = self;
     sub.networkStatsDelegate = self;
+    NSLog(@"OT subscriber Audio volume before %f", sub.audioVolume);
+    [sub setAudioVolume:100];
+    NSLog(@"OT subscriber Audio volume after %f", sub.audioVolume);
     [_session subscribe:sub error:nil];
 
     if ([[command.arguments objectAtIndex:6] isEqualToString:@"false"]) {
