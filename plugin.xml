@@ -53,7 +53,7 @@
             <source url="https://github.com/CocoaPods/Specs.git"/>
         </config>
         <pods>
-            <pod name="OTXCFramework" spec="&gt;= 2.26.0" />
+            <pod name="OTXCFramework" spec=">= 2.26.0" />
         </pods>
       </podspec>
       
