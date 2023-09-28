@@ -46,7 +46,17 @@
       <source-file src="src/ios/UIView+Category.m" />
       <header-file src="src/ios/OpenTokPlugin.h" />
       <source-file src="src/ios/OpenTokPlugin.m" />
-
+      
+      <!-- OTXCFramework COCOAPODS-->
+      <podspec>
+        <config>
+            <source url="https://github.com/CocoaPods/Specs.git"/>
+        </config>
+        <pods>
+            <pod name="OTXCFramework" spec="&gt;= 2.26.0" />
+        </pods>
+      </podspec>
+      
       <framework src="libstdc++.dylib" />
       <framework src="libc++.dylib" />
       <framework src="libxml2.dylib" />
