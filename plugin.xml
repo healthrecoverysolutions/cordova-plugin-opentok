@@ -9,12 +9,6 @@
     <license>Apache 2.0</license>
     <keywords>opentok,tokbox</keywords>
 
-    <engines>
-        <engine name="cordova" version=">=8.1.0" />
-        <engine name="cordova-android" version=">=6.4.0" />
-        <engine name="cordova-ios" version=">=5.0.0" />
-    </engines>
-    
     <platform name="android">
       <framework src="build-extras.gradle" custom="true" type="gradleReference" />
       <framework src="com.android.support:appcompat-v7:23.1.0" />
@@ -46,6 +40,7 @@
 
     <!-- ios -->
     <platform name="ios">
+      <framework src="OTXCFramework" type="podspec" spec="~> 2.26.0" />
       <asset src="www/opentok.js" target="opentok.js" />
 
       <header-file src="src/ios/UIView+Category.h" />
@@ -92,15 +87,6 @@
           <param name="onload" value="true"/>
         </feature>
       </config-file>
-      <!-- OTXCFramework COCOAPODS-->
-      <podspec>
-        <config>
-            <source url="https://github.com/CocoaPods/Specs.git"/>
-        </config>
-        <pods use-frameworks="true">
-            <pod name="OTXCFramework" spec="2.26.0" />
-        </pods>
-      </podspec>
     </platform>
 
     <platform name="browser">
