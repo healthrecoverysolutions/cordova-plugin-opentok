@@ -47,16 +47,6 @@
       <header-file src="src/ios/OpenTokPlugin.h" />
       <source-file src="src/ios/OpenTokPlugin.m" />
       
-      <!-- OTXCFramework COCOAPODS-->
-      <podspec>
-        <config>
-            <source url="https://github.com/CocoaPods/Specs.git"/>
-        </config>
-        <pods>
-            <pod name="OTXCFramework" spec=">= 2.26.0" />
-        </pods>
-      </podspec>
-      
       <framework src="libstdc++.dylib" />
       <framework src="libc++.dylib" />
       <framework src="libxml2.dylib" />
@@ -102,5 +92,16 @@
     <platform name="browser">
       <hook type="before_plugin_install" src="scripts/downloadJSSDK.js" />
       <asset src="node_modules/@opentok/client/dist/js/opentok.min.js" target="opentok.js"/>
+      
+      <!-- OTXCFramework COCOAPODS-->
+      <podspec>
+        <config>
+            <source url="https://github.com/CocoaPods/Specs.git"/>
+        </config>
+        <pods use-frameworks="true">
+            <pod name="OTXCFramework" spec="2.26.0" />
+        </pods>
+      </podspec>
+      
   </platform>
 </plugin>
