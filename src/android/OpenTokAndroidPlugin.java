@@ -16,6 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.Manifest;
+import android.content.Intent;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.content.pm.PackageManager;
@@ -36,6 +37,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import com.opentok.android.AudioDeviceManager;
+import com.opentok.android.BaseAudioDevice;
 import com.opentok.android.Connection;
 import com.opentok.android.OpentokError;
 import com.opentok.android.Publisher;
@@ -365,11 +368,14 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         public RunnableSubscriber(JSONArray args, Stream stream) {
             this.mProperty = args;
             mStream = stream;
-
+           // AudioDeviceManager.getAudioDevice().setOutputMode(BaseAudioDevice.OutputMode.SpeakerPhone);
             logMessage("NEW SUBSCRIBER BEING CREATED");
             mSubscriber = new Subscriber.Builder(cordova.getActivity().getApplicationContext(), mStream)
                     .renderer(new OpenTokCustomVideoRenderer(cordova.getActivity().getApplicationContext()))
                     .build();
+            Log.d(TAG, "When New Subscriber Created Get audio volume--> " + mSubscriber.getAudioVolume());
+            mSubscriber.setAudioVolume(100);
+            Log.d(TAG, "After setting -->When New Subscriber Created Get audio volume--> " + mSubscriber.getAudioVolume());
             mSubscriber.setVideoListener(this);
             mSubscriber.setSubscriberListener(this);
             mSubscriber.setAudioLevelListener(this);
@@ -508,6 +514,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
 
         // audioLevelListener
         public void onAudioLevelUpdated(SubscriberKit subscriber, float audioLevel) {
+            Log.d(TAG, "Out put mode --> " + AudioDeviceManager.getAudioDevice().getOutputMode());
             JSONObject data = new JSONObject();
             try {
                 data.put("audioLevel", audioLevel);
@@ -561,13 +568,15 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
 
         super.initialize(cordova, webView);
     }
-
+private String token = "";
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         Log.i(TAG, action);
         // TB Methods
         if (action.equals("initPublisher")) {
-            myPublisher = new RunnablePublisher(args);
+        //    myPublisher = new RunnablePublisher(args);
+            token = args.getString(0);
+            Log.d(TAG, "Obtained token --> " + token);
         } else if (action.equals("destroyPublisher")) {
             if (myPublisher != null) {
                 myPublisher.destroyPublisher();
@@ -576,17 +585,25 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 return true;
             }
         } else if (action.equals("initSession")) {
-            apiKey = args.getString(0);
-            sessionId = args.getString(1);
-            Log.i(TAG, "created new session with data: " + args.toString());
-            mSession = new Session(this.cordova.getActivity().getApplicationContext(), apiKey, sessionId);
-            mSession.setSessionListener(this);
-            mSession.setConnectionListener(this);
-            mSession.setReconnectionListener(this);
-            mSession.setSignalListener(this);
-            mSession.setStreamPropertiesListener(this);
-            logOT(null);
 
+             apiKey = args.getString(0);
+            Log.d(TAG, "Obtained apikey --> " + apiKey);
+             sessionId = args.getString(1);
+            Log.d(TAG, "Obtained session id --> " + sessionId);
+//            Log.i(TAG, "created new session with data: " + args.toString());
+//            mSession = new Session(this.cordova.getActivity().getApplicationContext(), apiKey, sessionId);
+//            mSession.setSessionListener(this);
+//            mSession.setConnectionListener(this);
+//            mSession.setReconnectionListener(this);
+//            mSession.setSignalListener(this);
+//            mSession.setStreamPropertiesListener(this);
+//            logOT(null);
+//            Intent intent = new Intent(cordova.getActivity(), VonageActivity.class);
+//            intent.putExtra("apiKey", apiKey);
+//            intent.putExtra("sessionID", sessionId);
+//            intent.putExtra("token", token);
+//            cordova.getActivity().startActivity(intent);
+            Log.i(TAG, "init session command called");
             // publisher methods
         } else if (action.equals("setCameraPosition")) {
             myPublisher.mPublisher.cycleCamera();
@@ -612,9 +629,19 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             Log.i(TAG, "adding new event - " + args.getString(0));
             myEventListeners.put(args.getString(0), callbackContext);
         } else if (action.equals("connect")) {
+            Log.d(TAG, "CONNECT ##$#$#$");
+//            Intent intent = new Intent(cordova.getActivity(), VonageActivity.class);
+//            cordova.getActivity().startActivity(intent);
+            token = args.getString(0);
+            Log.d(TAG, "Obtained token --> " + token);
             Log.i(TAG, "connect command called");
-            mSession.connect(args.getString(0));
-            callbackContext.success();
+            Intent intent = new Intent(cordova.getActivity(), VonageActivity.class);
+            intent.putExtra("apiKey", apiKey);
+            intent.putExtra("sessionID", sessionId);
+            intent.putExtra("token", token);
+            cordova.getActivity().startActivity(intent);
+            // mSession.connect(args.getString(0));
+            // callbackContext.success();
         } else if (action.equals("disconnect")) {
             mSession.disconnect();
         } else if (action.equals("publish")) {
