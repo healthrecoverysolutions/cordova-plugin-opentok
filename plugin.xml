@@ -47,7 +47,7 @@
       <header-file src="src/ios/OpenTokPlugin.h" />
       <source-file src="src/ios/OpenTokPlugin.m" />
 
-      <pod name="OTXCFramework" spec="2.26.0" />
+      <pod name="OTXCFramework" spec="~> 2.26.1" />
       <framework src="libstdc++.dylib" />
       <framework src="libc++.dylib" />
       <framework src="libxml2.dylib" />
