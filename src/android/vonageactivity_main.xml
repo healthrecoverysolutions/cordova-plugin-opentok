@@ -13,7 +13,6 @@
         android:id="@+id/picture_in_picture_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
        android:text="Minimise"
        />
 
@@ -24,7 +23,34 @@
         android:paddingLeft="15dp"
         android:text="End Call"/>
 
-            </LinearLayout>
+        <Button
+            android:id="@+id/swapCamera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Swap Camera" />
+
+        <ToggleButton
+            android:id="@+id/toggleAudio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:text="Toggle Audio"
+            android:textOff="@string/audio"
+            android:textOn="@string/audio" />
+
+        <ToggleButton
+            android:id="@+id/toggleVideo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:text="Toggle Video"
+            android:textOff="@string/video"
+            android:textOn="@string/video" />
+
+    </LinearLayout>
     <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">

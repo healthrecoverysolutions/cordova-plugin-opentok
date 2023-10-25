@@ -11,8 +11,10 @@ import android.util.Log;
 import android.util.Rational;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.annotation.RequiresApi;
 
@@ -81,8 +83,14 @@ private Button endButton;
 
         @Override
         public void onStreamDropped(Session session, Stream stream) {
+            Log.d(TAG, "Stream dropped -->");
             subscriberViewContainer.removeAllViews();
             subscriber = null;
+            Log.d(TAG, "End the call now!!! as subscriber has dropped ---->.");
+            if(session!=null) {
+                session.disconnect();
+                finish();
+            }
         }
 
         @Override
@@ -123,6 +131,7 @@ private Button endButton;
                         .build();
 
                 enterPictureInPictureMode(params);
+
             }
         });
 
@@ -132,9 +141,52 @@ private Button endButton;
               Log.d(TAG, "End the call");
               if(session!=null) {
                   session.disconnect();
+                  finish();
               }
             }
         });
+
+        final Button swapCamera = findViewById(R.id.swapCamera);
+        swapCamera.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (publisher == null) {
+                    return;
+                }
+
+                publisher.cycleCamera();
+            }
+        });
+
+        final ToggleButton toggleAudio = findViewById(R.id.toggleAudio);
+        toggleAudio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (publisher == null) {
+                    return;
+                }
+
+                if (isChecked) {
+                    publisher.setPublishAudio(true);
+                } else {
+                    publisher.setPublishAudio(false);
+                }
+            }
+        });
+
+        final ToggleButton toggleVideo = findViewById(R.id.toggleVideo);
+        toggleVideo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (publisher == null) {
+                    return;
+                }
+
+                if (isChecked) {
+                    publisher.setPublishVideo(true);
+                } else {
+                    publisher.setPublishVideo(false);
+                }
+            }
+        });
+
         // String[] perms = new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
        // EasyPermissions.requestPermissions(this, getString(R.string.rationale_video_app), PERMISSIONS_REQUEST_CODE, perms);
     }
@@ -147,12 +199,13 @@ private Button endButton;
             pictureInPictureButton.setVisibility(View.GONE);
             publisherViewContainer.setVisibility(View.GONE);
             publisher.getView().setVisibility(View.GONE);
+            endButton.setVisibility(View.INVISIBLE);
             getActionBar().hide();
         } else {
             pictureInPictureButton.setVisibility(View.VISIBLE);
             publisherViewContainer.setVisibility(View.VISIBLE);
             publisher.getView().setVisibility(View.VISIBLE);
-
+            endButton.setVisibility(View.VISIBLE);
             if (publisher.getView() instanceof GLSurfaceView) {
                 ((GLSurfaceView) publisher.getView()).setZOrderOnTop(true);
             }
