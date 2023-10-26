@@ -16,6 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.Manifest;
+import android.media.AudioManager;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.content.pm.PackageManager;
@@ -25,6 +26,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
+import android.provider.Settings;
 import android.util.Log;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -36,6 +38,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import com.opentok.android.AudioDeviceManager;
 import com.opentok.android.Connection;
 import com.opentok.android.OpentokError;
 import com.opentok.android.Publisher;
@@ -80,7 +83,8 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     public static final String[] perms = {Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
     public CallbackContext permissionsCallback;
 
-
+    AudioManager manager;
+    int streamMaxVol;
     public class RunnableUpdateViews implements Runnable {
         public JSONArray mProperty;
         public View mView;
@@ -370,6 +374,12 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             mSubscriber = new Subscriber.Builder(cordova.getActivity().getApplicationContext(), mStream)
                     .renderer(new OpenTokCustomVideoRenderer(cordova.getActivity().getApplicationContext()))
                     .build();
+            Log.d(TAG, "When New Subscriber Created Get audio volume--> " + mSubscriber.getAudioVolume());
+            mSubscriber.setAudioVolume(100);
+            Log.d(TAG, "After setting -->When New Subscriber Created Get audio volume--> " + mSubscriber.getAudioVolume());
+           // int streamMaxVol = manager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL);
+           // manager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, streamMaxVol, 0);
+           // Log.d(TAG, "After setting -->When New Subscriber Created get stream volume --> " + manager.getStreamVolume(AudioManager.STREAM_VOICE_CALL));
             mSubscriber.setVideoListener(this);
             mSubscriber.setSubscriberListener(this);
             mSubscriber.setAudioLevelListener(this);
@@ -508,6 +518,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
 
         // audioLevelListener
         public void onAudioLevelUpdated(SubscriberKit subscriber, float audioLevel) {
+           // Log.d(TAG, "On audio updated " + manager.getStreamVolume(AudioManager.STREAM_VOICE_CALL));
             JSONObject data = new JSONObject();
             try {
                 data.put("audioLevel", audioLevel);
@@ -525,6 +536,8 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         }
     }
 
+
+
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         _cordova = cordova;
@@ -534,6 +547,9 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         _webView.getView().setBackgroundColor(Color.argb(1, 0, 0, 0));
 
         Log.d(TAG, "Initialize Plugin");
+        this.manager = (AudioManager) this.cordova.getActivity().getSystemService(Context.AUDIO_SERVICE);
+        //this.streamMaxVol = manager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL);
+        //Log.d(TAG, "Stream's max volume for voice call --> " + this.streamMaxVol);
         // By default, get a pointer to mainView and add mainView to the viewList as it always exists (hold cordova's view)
         if (!viewList.has("mainView")) {
             // Cordova view is not in the viewList so add it.
@@ -558,9 +574,15 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         streamHasAudio = new HashMap<String, Boolean>();
         streamHasVideo = new HashMap<String, Boolean>();
         streamVideoDimensions = new HashMap<String, JSONObject>();
-
+        String deviceName = Settings.Global.getString(cordova.getContext().getContentResolver(), "device_name");
+        Log.d(TAG, "Device name ----> " + deviceName);
+        AdvancedAudioDevice advancedAudioDevice = new AdvancedAudioDevice(cordova.getContext());
+        AudioDeviceManager.setAudioDevice(advancedAudioDevice);
+        Log.d(TAG, "Set the new AUDIO DEVICE!!@!##!");
         super.initialize(cordova, webView);
     }
+
+
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -579,6 +601,9 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             apiKey = args.getString(0);
             sessionId = args.getString(1);
             Log.i(TAG, "created new session with data: " + args.toString());
+//            AdvancedAudioDevice advancedAudioDevice = new AdvancedAudioDevice(cordova.getContext());
+//            AudioDeviceManager.setAudioDevice(advancedAudioDevice);
+            Log.d(TAG, "Set the audio device ---><>>");
             mSession = new Session(this.cordova.getActivity().getApplicationContext(), apiKey, sessionId);
             mSession.setSessionListener(this);
             mSession.setConnectionListener(this);
@@ -820,6 +845,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
 
     @Override
     public void onStreamReceived(Session arg0, Stream arg1) {
+       // Log.d(TAG, "on stream Receievd " + manager.getStreamVolume(AudioManager.STREAM_VOICE_CALL));
         Log.i(TAG, "stream received");
         streamCollection.put(arg1.getStreamId(), arg1);
 
@@ -916,6 +942,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     // streamPropertiesListener
     @Override
     public void onStreamHasAudioChanged(Session session, Stream stream, boolean newValue) {
+      //  Log.d(TAG, "on stream has audio changed" + manager.getStreamVolume(AudioManager.STREAM_VOICE_CALL));
         boolean oldValue = this.streamHasAudio.get(stream.getStreamId());
         this.streamHasAudio.put(stream.getStreamId(), newValue);
 
