@@ -13,6 +13,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -44,60 +47,64 @@ public class VonageActivity extends Activity /*implements Easy.PermissionCallbac
 
     private FrameLayout subscriberViewContainer;
     private FrameLayout publisherViewContainer;
-    private Button pictureInPictureButton;
-private Button endButton;
+    private ImageButton pictureInPictureButton;
+    private Button endButton;
+    boolean isMuted = false;
+    boolean isVideoOff = false;
 
+    private RelativeLayout imageViewHeader;
+    private LinearLayout imageViewFooter;
 
-   // private Session.SessionListener sessionListener = new Session.SessionListener() {
-        @Override
-        public void onConnected(Session session) {
-            Log.d(TAG, "Session connected");
+    // private Session.SessionListener sessionListener = new Session.SessionListener() {
+    @Override
+    public void onConnected(Session session) {
+        Log.d(TAG, "Session connected");
 
-            if (publisher == null) {
-                publisher = new Publisher.Builder(getApplicationContext()).build();
-                session.publish(publisher);
+        if (publisher == null) {
+            publisher = new Publisher.Builder(getApplicationContext()).build();
+            session.publish(publisher);
 
-                publisherViewContainer.addView(publisher.getView());
+            publisherViewContainer.addView(publisher.getView());
 
-                if (publisher.getView() instanceof GLSurfaceView) {
-                    ((GLSurfaceView) publisher.getView()).setZOrderOnTop(true);
-                }
+            if (publisher.getView() instanceof GLSurfaceView) {
+                ((GLSurfaceView) publisher.getView()).setZOrderOnTop(true);
             }
         }
+    }
 
-        @Override
-        public void onDisconnected(Session session) {
-        }
+    @Override
+    public void onDisconnected(Session session) {
+    }
 
-        @Override
-        public void onStreamReceived(Session session, Stream stream) {
-            Log.d(TAG, "Stream Receieved");
-            if (subscriber == null) {
-                subscriber = new Subscriber.Builder(getApplicationContext(), stream).build();
-                session.subscribe(subscriber);
-                subscriberViewContainer.addView(subscriber.getView());
-            } else {
-                Log.d(TAG, "This sample supports just one subscriber");
-            }
+    @Override
+    public void onStreamReceived(Session session, Stream stream) {
+        Log.d(TAG, "Stream Receieved");
+        if (subscriber == null) {
+            subscriber = new Subscriber.Builder(getApplicationContext(), stream).build();
+            session.subscribe(subscriber);
+            subscriberViewContainer.addView(subscriber.getView());
+        } else {
+            Log.d(TAG, "This sample supports just one subscriber");
         }
+    }
 
-        @Override
-        public void onStreamDropped(Session session, Stream stream) {
-            Log.d(TAG, "Stream dropped -->");
-            subscriberViewContainer.removeAllViews();
-            subscriber = null;
-            Log.d(TAG, "End the call now!!! as subscriber has dropped ---->.");
-            if(session!=null) {
-                session.disconnect();
-                finish();
-            }
+    @Override
+    public void onStreamDropped(Session session, Stream stream) {
+        Log.d(TAG, "Stream dropped -->");
+        subscriberViewContainer.removeAllViews();
+        subscriber = null;
+        Log.d(TAG, "End the call now!!! as subscriber has dropped ---->.");
+        if(session!=null) {
+            session.disconnect();
+            finish();
         }
+    }
 
-        @Override
-        public void onError(Session session, OpentokError opentokError) {
-            finishWithMessage("Session error: " + opentokError.getMessage());
-        }
-   // };
+    @Override
+    public void onError(Session session, OpentokError opentokError) {
+        finishWithMessage("Session error: " + opentokError.getMessage());
+    }
+    // };
 
     private String apiKey;
     private String sessionID;
@@ -127,8 +134,8 @@ private Button endButton;
             @Override
             public void onClick(View v) {
                 PictureInPictureParams params = new PictureInPictureParams.Builder()
-                        .setAspectRatio(new Rational(9, 16)) // Portrait Aspect Ratio
-                        .build();
+                    .setAspectRatio(new Rational(9, 16)) // Portrait Aspect Ratio
+                    .build();
 
                 enterPictureInPictureMode(params);
 
@@ -138,15 +145,15 @@ private Button endButton;
         endButton.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-              Log.d(TAG, "End the call");
-              if(session!=null) {
-                  session.disconnect();
-                  finish();
-              }
+                Log.d(TAG, "End the call");
+                if(session!=null) {
+                    session.disconnect();
+                    finish();
+                }
             }
         });
 
-        final Button swapCamera = findViewById(R.id.swapCamera);
+        final ImageButton swapCamera = findViewById(R.id.swapCamera);
         swapCamera.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (publisher == null) {
@@ -157,38 +164,89 @@ private Button endButton;
             }
         });
 
-        final ToggleButton toggleAudio = findViewById(R.id.toggleAudio);
-        toggleAudio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        imageViewHeader = findViewById(R.id.imageViewHeader);
+        imageViewFooter = findViewById((R.id.imageViewFooter));
+//        final ToggleButton toggleAudio = findViewById(R.id.toggleAudio);
+//        toggleAudio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                if (publisher == null) {
+//                    return;
+//                }
+//
+//                if (isChecked) {
+//                    publisher.setPublishAudio(true);
+//                } else {
+//                    publisher.setPublishAudio(false);
+//                }
+//            }
+//        });
+
+
+
+        /*ToggleButton*/ final ImageButton toggleAudio = findViewById(R.id.toggleAudio);
+        toggleAudio.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
                 if (publisher == null) {
                     return;
                 }
 
-                if (isChecked) {
-                    publisher.setPublishAudio(true);
-                } else {
+                if (/*toggleAudio.isSelected()*/ isMuted) {
+                    toggleAudio.setImageResource(R.drawable.ic_mic);
                     publisher.setPublishAudio(false);
+                } else {
+
+                    toggleAudio.setImageResource(R.drawable.ic_muted);
+
+                    publisher.setPublishAudio(true);
                 }
+                isMuted = !isMuted; // reverse
             }
         });
 
-        final ToggleButton toggleVideo = findViewById(R.id.toggleVideo);
-        toggleVideo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+       final  ImageButton toggleVideo = findViewById(R.id.toggleVideo);
+        toggleVideo.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
                 if (publisher == null) {
                     return;
                 }
 
-                if (isChecked) {
+                if (toggleVideo.isSelected()) {
+                    toggleVideo.setImageResource(R.drawable.ic_video_on);
                     publisher.setPublishVideo(true);
                 } else {
+                    toggleVideo.setImageResource(R.drawable.ic_video_off);
                     publisher.setPublishVideo(false);
                 }
+                toggleVideo.setSelected(!toggleVideo.isSelected());  // reverse
+
+//                if (/*toggleVideo.isSelected()*/ isVideoOff) {
+//                    toggleVideo.setImageResource(R.drawable.ic_video_off);
+//                    publisher.setPublishVideo(true);
+//                } else {
+//                    toggleVideo.setImageResource(R.drawable.ic_video);
+//                    publisher.setPublishVideo(false);
+//                }
+//                isVideoOff = !isVideoOff; // reverse
             }
         });
 
+//        final ToggleButton toggleVideo = findViewById(R.id.toggleVideo);
+//        toggleVideo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                if (publisher == null) {
+//                    return;
+//                }
+//
+//                if (isChecked) {
+//                    publisher.setPublishVideo(true);
+//                } else {
+//                    publisher.setPublishVideo(false);
+//                }
+//            }
+//        });
+
         // String[] perms = new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
-       // EasyPermissions.requestPermissions(this, getString(R.string.rationale_video_app), PERMISSIONS_REQUEST_CODE, perms);
+        // EasyPermissions.requestPermissions(this, getString(R.string.rationale_video_app), PERMISSIONS_REQUEST_CODE, perms);
     }
 
     @Override
@@ -199,34 +257,39 @@ private Button endButton;
             pictureInPictureButton.setVisibility(View.GONE);
             publisherViewContainer.setVisibility(View.GONE);
             publisher.getView().setVisibility(View.GONE);
-            endButton.setVisibility(View.INVISIBLE);
-            getActionBar().hide();
+            //endButton.setVisibility(View.INVISIBLE);
+            imageViewHeader.setVisibility(View.GONE);
+            imageViewFooter.setVisibility(View.GONE);
+//            getActionBar().hide();
         } else {
             pictureInPictureButton.setVisibility(View.VISIBLE);
             publisherViewContainer.setVisibility(View.VISIBLE);
             publisher.getView().setVisibility(View.VISIBLE);
-            endButton.setVisibility(View.VISIBLE);
+            publisher.getView().refreshDrawableState();
+            imageViewHeader.setVisibility(View.VISIBLE);
+            imageViewFooter.setVisibility(View.VISIBLE);
+           // endButton.setVisibility(View.VISIBLE);
             if (publisher.getView() instanceof GLSurfaceView) {
                 ((GLSurfaceView) publisher.getView()).setZOrderOnTop(true);
             }
 
-            getActionBar().show();
+        //    getActionBar().show();
         }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-Log.d(TAG, "Vonage activity on start --");
+        Log.d(TAG, "Vonage activity on start --");
         if (session == null) {
 //            session = new Session.Builder(getApplicationContext(), OpenTokConfig.API_KEY, OpenTokConfig.SESSION_ID)
 //                    .build();
             session = new Session.Builder(getApplicationContext(), apiKey, sessionID)
                 .build();
         }
-session.setSessionListener(this);
+        session.setSessionListener(this);
         session.setConnectionListener(this);
-      //  session.setSessionListener(sessionListener);
+        //  session.setSessionListener(sessionListener);
 //        session.connect(OpenTokConfig.TOKEN);
         session.connect(token);
     }
