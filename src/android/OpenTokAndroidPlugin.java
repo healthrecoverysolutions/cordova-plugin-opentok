@@ -574,9 +574,7 @@ private String token = "";
         Log.i(TAG, action);
         // TB Methods
         if (action.equals("initPublisher")) {
-        //    myPublisher = new RunnablePublisher(args);
-            token = args.getString(0);
-            Log.d(TAG, "Obtained token --> " + token);
+            myPublisher = new RunnablePublisher(args);
         } else if (action.equals("destroyPublisher")) {
             if (myPublisher != null) {
                 myPublisher.destroyPublisher();
@@ -585,26 +583,12 @@ private String token = "";
                 return true;
             }
         } else if (action.equals("initSession")) {
-
              apiKey = args.getString(0);
             Log.d(TAG, "Obtained apikey --> " + apiKey);
              sessionId = args.getString(1);
             Log.d(TAG, "Obtained session id --> " + sessionId);
-//            Log.i(TAG, "created new session with data: " + args.toString());
-//            mSession = new Session(this.cordova.getActivity().getApplicationContext(), apiKey, sessionId);
-//            mSession.setSessionListener(this);
-//            mSession.setConnectionListener(this);
-//            mSession.setReconnectionListener(this);
-//            mSession.setSignalListener(this);
-//            mSession.setStreamPropertiesListener(this);
-//            logOT(null);
-//            Intent intent = new Intent(cordova.getActivity(), VonageActivity.class);
-//            intent.putExtra("apiKey", apiKey);
-//            intent.putExtra("sessionID", sessionId);
-//            intent.putExtra("token", token);
-//            cordova.getActivity().startActivity(intent);
             Log.i(TAG, "init session command called");
-            // publisher methods
+
         } else if (action.equals("setCameraPosition")) {
             myPublisher.mPublisher.cycleCamera();
         } else if (action.equals("publishAudio")) {
@@ -630,8 +614,6 @@ private String token = "";
             myEventListeners.put(args.getString(0), callbackContext);
         } else if (action.equals("connect")) {
             Log.d(TAG, "CONNECT ##$#$#$");
-//            Intent intent = new Intent(cordova.getActivity(), VonageActivity.class);
-//            cordova.getActivity().startActivity(intent);
             token = args.getString(0);
             Log.d(TAG, "Obtained token --> " + token);
             Log.i(TAG, "connect command called");

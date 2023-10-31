@@ -199,13 +199,10 @@ public class VonageActivity extends Activity /*implements Easy.PermissionCallbac
                 }
 
                 if (/*toggleAudio.isSelected()*/ /*isMuted*/ toggleAudio.isSelected()) {
-
-                    toggleAudio.setImageResource(R.drawable.ic_muted);
-
+                    toggleAudio.setImageResource(R.drawable.ic_mic);
                     publisher.setPublishAudio(true);
                 } else {
-
-                    toggleAudio.setImageResource(R.drawable.ic_mic);
+                    toggleAudio.setImageResource(R.drawable.ic_muted);
                     publisher.setPublishAudio(false);
                 }
                 toggleAudio.setSelected(!toggleAudio.isSelected()); // reverse
