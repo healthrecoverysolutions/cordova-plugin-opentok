@@ -52,7 +52,7 @@ public class VonageActivity extends Activity /*implements Easy.PermissionCallbac
     boolean isMuted = false;
     boolean isVideoOff = false;
 
-    private RelativeLayout imageViewHeader;
+    private /*RelativeLayout*/ LinearLayout imageViewHeader;
     private LinearLayout imageViewFooter;
 
     // private Session.SessionListener sessionListener = new Session.SessionListener() {
@@ -116,10 +116,10 @@ public class VonageActivity extends Activity /*implements Easy.PermissionCallbac
         setContentView(R.layout.vonageactivity_main);
 
         Log.d(TAG, "Vonage activity on create --");
-        if(!OpenTokConfig.isValid()) {
-            finishWithMessage("Invalid OpenTokConfig. " + OpenTokConfig.getDescription());
-            return;
-        }
+//        if(!OpenTokConfig.isValid()) {
+//            finishWithMessage("Invalid OpenTokConfig. " + OpenTokConfig.getDescription());
+//            return;
+//        }
 
         apiKey = getIntent().getExtras().getString("apiKey");
         sessionID = getIntent().getExtras().getString("sessionID");
@@ -190,16 +190,17 @@ public class VonageActivity extends Activity /*implements Easy.PermissionCallbac
                     return;
                 }
 
-                if (/*toggleAudio.isSelected()*/ isMuted) {
-                    toggleAudio.setImageResource(R.drawable.ic_mic);
-                    publisher.setPublishAudio(false);
-                } else {
+                if (/*toggleAudio.isSelected()*/ /*isMuted*/ toggleAudio.isSelected()) {
 
                     toggleAudio.setImageResource(R.drawable.ic_muted);
 
                     publisher.setPublishAudio(true);
+                } else {
+
+                    toggleAudio.setImageResource(R.drawable.ic_mic);
+                    publisher.setPublishAudio(false);
                 }
-                isMuted = !isMuted; // reverse
+                toggleAudio.setSelected(!toggleAudio.isSelected()); // reverse
             }
         });
 
