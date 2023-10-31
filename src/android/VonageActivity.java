@@ -22,6 +22,7 @@ import android.widget.ToggleButton;
 import androidx.annotation.RequiresApi;
 
 import com.hrs.patient.R;
+import com.opentok.android.BaseVideoRenderer;
 import com.opentok.android.Connection;
 import com.opentok.android.OpentokError;
 import com.opentok.android.Publisher;
@@ -82,7 +83,14 @@ public class VonageActivity extends Activity /*implements Easy.PermissionCallbac
         if (subscriber == null) {
             subscriber = new Subscriber.Builder(getApplicationContext(), stream).build();
             session.subscribe(subscriber);
-            subscriberViewContainer.addView(subscriber.getView());
+//            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+//                    getResources().getDisplayMetrics().widthPixels, getResources()
+//                    .getDisplayMetrics().heightPixels);
+//            subscriberViewContainer.addView(subscriber.getView(), layoutParams);
+           // mViewContainer.addView(mSubscriber.getView(), layoutParams);
+            subscriber.getRenderer().setStyle(BaseVideoRenderer.STYLE_VIDEO_SCALE, BaseVideoRenderer.STYLE_VIDEO_FILL);
+           // subscriber.setSubscriberListener(subscriberListener);
+           subscriberViewContainer.addView(subscriber.getView());
         } else {
             Log.d(TAG, "This sample supports just one subscriber");
         }
