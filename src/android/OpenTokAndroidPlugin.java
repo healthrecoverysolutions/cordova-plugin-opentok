@@ -596,9 +596,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             apiKey = args.getString(0);
             sessionId = args.getString(1);
             Log.i(TAG, "created new session with data: " + args.toString());
-//            AdvancedAudioDevice advancedAudioDevice = new AdvancedAudioDevice(cordova.getContext());
-//            AudioDeviceManager.setAudioDevice(advancedAudioDevice);
-            Log.d(TAG, "Set the audio device ---><>>");
             mSession = new Session(this.cordova.getActivity().getApplicationContext(), apiKey, sessionId);
             mSession.setSessionListener(this);
             mSession.setConnectionListener(this);
