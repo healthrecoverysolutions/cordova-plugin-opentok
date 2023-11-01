@@ -377,9 +377,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             Log.d(TAG, "When New Subscriber Created Get audio volume--> " + mSubscriber.getAudioVolume());
             mSubscriber.setAudioVolume(100);
             Log.d(TAG, "After setting -->When New Subscriber Created Get audio volume--> " + mSubscriber.getAudioVolume());
-           // int streamMaxVol = manager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL);
-           // manager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, streamMaxVol, 0);
-           // Log.d(TAG, "After setting -->When New Subscriber Created get stream volume --> " + manager.getStreamVolume(AudioManager.STREAM_VOICE_CALL));
             mSubscriber.setVideoListener(this);
             mSubscriber.setSubscriberListener(this);
             mSubscriber.setAudioLevelListener(this);
@@ -576,9 +573,12 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         streamVideoDimensions = new HashMap<String, JSONObject>();
         String deviceName = Settings.Global.getString(cordova.getContext().getContentResolver(), "device_name");
         Log.d(TAG, "Device name ----> " + deviceName);
-        AdvancedAudioDevice advancedAudioDevice = new AdvancedAudioDevice(cordova.getContext());
-        AudioDeviceManager.setAudioDevice(advancedAudioDevice);
-        Log.d(TAG, "Set the new AUDIO DEVICE!!@!##!");
+        if (deviceName!=null && deviceName.contains("A7 Lite")) {
+            AdvancedAudioDevice advancedAudioDevice = new AdvancedAudioDevice(cordova.getContext());
+            AudioDeviceManager.setAudioDevice(advancedAudioDevice);
+            Log.d(TAG, "For A7 lite, setting custom audio driver");
+        }
+
         super.initialize(cordova, webView);
     }
 
