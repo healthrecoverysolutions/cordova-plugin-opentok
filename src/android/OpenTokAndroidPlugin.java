@@ -530,8 +530,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         }
     }
 
-
-
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         _cordova = cordova;
@@ -837,7 +835,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
 
     @Override
     public void onStreamReceived(Session arg0, Stream arg1) {
-       // Log.d(TAG, "on stream Receievd " + manager.getStreamVolume(AudioManager.STREAM_VOICE_CALL));
         Log.i(TAG, "stream received");
         streamCollection.put(arg1.getStreamId(), arg1);
 
@@ -934,7 +931,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     // streamPropertiesListener
     @Override
     public void onStreamHasAudioChanged(Session session, Stream stream, boolean newValue) {
-      //  Log.d(TAG, "on stream has audio changed" + manager.getStreamVolume(AudioManager.STREAM_VOICE_CALL));
         boolean oldValue = this.streamHasAudio.get(stream.getStreamId());
         this.streamHasAudio.put(stream.getStreamId(), newValue);
 
