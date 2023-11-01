@@ -83,8 +83,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     public static final String[] perms = {Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
     public CallbackContext permissionsCallback;
 
-    AudioManager manager;
-    int streamMaxVol;
     public class RunnableUpdateViews implements Runnable {
         public JSONArray mProperty;
         public View mView;
@@ -515,7 +513,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
 
         // audioLevelListener
         public void onAudioLevelUpdated(SubscriberKit subscriber, float audioLevel) {
-           // Log.d(TAG, "On audio updated " + manager.getStreamVolume(AudioManager.STREAM_VOICE_CALL));
             JSONObject data = new JSONObject();
             try {
                 data.put("audioLevel", audioLevel);
@@ -544,9 +541,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         _webView.getView().setBackgroundColor(Color.argb(1, 0, 0, 0));
 
         Log.d(TAG, "Initialize Plugin");
-        this.manager = (AudioManager) this.cordova.getActivity().getSystemService(Context.AUDIO_SERVICE);
-        //this.streamMaxVol = manager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL);
-        //Log.d(TAG, "Stream's max volume for voice call --> " + this.streamMaxVol);
         // By default, get a pointer to mainView and add mainView to the viewList as it always exists (hold cordova's view)
         if (!viewList.has("mainView")) {
             // Cordova view is not in the viewList so add it.
