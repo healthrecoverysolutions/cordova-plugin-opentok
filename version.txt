@@ -1,5 +1,5 @@
-v3.4.6
+v3.4.7
 
 Base SDKs:
-Android: v2.22.3
-iOS: v2.23.0
+Android: v2.26.0
+iOS: v2.26.0
