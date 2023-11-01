@@ -573,7 +573,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
 
         super.initialize(cordova, webView);
     }
-    
+
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         Log.i(TAG, action);
