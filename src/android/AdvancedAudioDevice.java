@@ -373,6 +373,7 @@ class AdvancedAudioDevice extends BaseAudioDevice {
                         case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                             break;
                         case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                            /* DEV-11766 (epic DEV-11304) : Setting Stream Music instead of Stream Voice call for A7 lite devices to enhance volume */
                             audioManager.setStreamVolume(/*AudioManager.STREAM_VOICE_CALL*/ AudioManager.STREAM_MUSIC,
                                 audioState.getLastStreamVolume(), 0);
                             break;
@@ -396,6 +397,7 @@ class AdvancedAudioDevice extends BaseAudioDevice {
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                     // -3 stay quite in background
                     Log.d(TAG, "AudioManager.OnAudioFocusChangeListener.onAudioFocusChange(" + focusChange + "): AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK");
+                    /* DEV-11766 (epic DEV-11304) : Setting Stream Music instead of Stream Voice call for A7 lite devices to enhance volume */
                     audioState.setLastStreamVolume(audioManager.getStreamVolume(/*AudioManager.STREAM_VOICE_CALL*/ AudioManager.STREAM_MUSIC));
                     audioManager.setStreamVolume(/*AudioManager.STREAM_VOICE_CALL*/ AudioManager.STREAM_MUSIC, 0, 0);
                     break;
@@ -678,7 +680,7 @@ class AdvancedAudioDevice extends BaseAudioDevice {
 
     @Override
     public boolean initRenderer() {
-
+        /* DEV-11766 (epic DEV-11304) : Setting Stream Music instead of Stream Voice call for A7 lite devices to enhance volume */
         // Request audio focus for playback
         int result = audioManager.requestAudioFocus(audioFocusChangeListener,
             // Use the music stream.
@@ -712,7 +714,7 @@ class AdvancedAudioDevice extends BaseAudioDevice {
 
         try {
             int channelConfig = (NUM_CHANNELS_RENDERING == 1) ? AudioFormat.CHANNEL_OUT_MONO : AudioFormat.CHANNEL_OUT_STEREO;
-
+            /* DEV-11766 (epic DEV-11304) : Setting Stream Music instead of Stream Voice call for A7 lite devices to enhance volume */
             audioTrack = new AudioTrack(
                     /*AudioManager.STREAM_VOICE_CALL*/ AudioManager.STREAM_MUSIC,
                     rendererSettings.getSampleRate(),

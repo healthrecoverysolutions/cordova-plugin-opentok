@@ -572,6 +572,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         streamHasVideo = new HashMap<String, Boolean>();
         streamVideoDimensions = new HashMap<String, JSONObject>();
         String deviceName = Settings.Global.getString(cordova.getContext().getContentResolver(), "device_name");
+        /* DEV-11766 (epic DEV-11304) : Setting custom audio driver for A7 lite devices to enhance volume*/
         Log.d(TAG, "Device name ----> " + deviceName);
         if (deviceName!=null && deviceName.contains("A7 Lite")) {
             AdvancedAudioDevice advancedAudioDevice = new AdvancedAudioDevice(cordova.getContext());
