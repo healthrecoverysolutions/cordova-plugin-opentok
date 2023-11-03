@@ -17,6 +17,7 @@
       <asset src="www/opentok.js" target="opentok.js" />
   	  <source-file src="src/android/OpenTokAndroidPlugin.java" target-dir="src/com/tokbox/cordova/" />
       <source-file src="src/android/OpenTokCustomVideoRenderer.java" target-dir="src/com/tokbox/cordova/" />
+      <source-file src="src/android/AdvancedAudioDevice.java" target-dir="src/com/tokbox/cordova/" />
       <config-file target="AndroidManifest.xml" parent="/manifest">
         <uses-permission android:name="android.permission.CAMERA" />
         <uses-permission android:name="android.permission.INTERNET" />
