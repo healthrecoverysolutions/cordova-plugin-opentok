@@ -8,7 +8,7 @@
         <LinearLayout
             android:id="@+id/imageViewHeader"
             android:layout_width="wrap_content"
-            android:layout_height="60dp"
+            android:layout_height="65dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:padding="5dp">
@@ -19,6 +19,7 @@
                 android:layout_height="50dp"
                 android:background="@drawable/roundcorner"
                 android:scaleType="fitXY"
+                android:layout_gravity="center"
                 android:src="@drawable/ic_switch_camera"
                 android:layout_marginLeft="3dp"
                 android:layout_marginRight="15dp"/>
@@ -27,6 +28,7 @@
                 android:id="@+id/toggleVideo"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
+                android:layout_gravity="center"
                 android:background="@drawable/roundcorner"
                 android:scaleType="fitXY"
                 android:src="@drawable/ic_video_on"
@@ -36,6 +38,7 @@
                 android:id="@+id/toggleAudio"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
+                android:layout_gravity="center"
                 android:background="@drawable/roundcorner"
                 android:scaleType="fitXY"
                 android:src="@drawable/ic_mic"
@@ -45,7 +48,7 @@
         <LinearLayout
             android:id="@+id/iconsRight"
             android:layout_width="wrap_content"
-            android:layout_height="60dp"
+            android:layout_height="65dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:padding="5dp">
@@ -54,6 +57,7 @@
                 android:id="@+id/picture_in_picture_button"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
+                android:layout_gravity="center"
                 android:background="@drawable/roundcorner"
                 android:scaleType="fitXY"
                 android:src="@drawable/ic_minimized"

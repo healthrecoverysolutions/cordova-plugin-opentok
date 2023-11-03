@@ -581,7 +581,8 @@ private String token = "";
         Log.i(TAG, action);
         // TB Methods
         if (action.equals("initPublisher")) {
-            myPublisher = new RunnablePublisher(args);
+            // myPublisher = new RunnablePublisher(args);
+            Log.d(TAG, "will init publisher from custom vonage activity part");
         } else if (action.equals("destroyPublisher")) {
             if (myPublisher != null) {
                 myPublisher.destroyPublisher();
@@ -620,17 +621,17 @@ private String token = "";
             Log.i(TAG, "adding new event - " + args.getString(0));
             myEventListeners.put(args.getString(0), callbackContext);
         } else if (action.equals("connect")) {
-            Log.d(TAG, "CONNECT ##$#$#$");
+            Log.d(TAG, "CONNECT method called");
             token = args.getString(0);
             Log.d(TAG, "Obtained token --> " + token);
-            Log.i(TAG, "connect command called");
+            Log.i(TAG, "Will launch custom vonage activity to handle the call");
             Intent intent = new Intent(cordova.getActivity(), VonageActivity.class);
             intent.putExtra("apiKey", apiKey);
             intent.putExtra("sessionID", sessionId);
             intent.putExtra("token", token);
             cordova.getActivity().startActivity(intent);
             // mSession.connect(args.getString(0));
-            // callbackContext.success();
+            callbackContext.success();
         } else if (action.equals("disconnect")) {
             mSession.disconnect();
         } else if (action.equals("publish")) {
