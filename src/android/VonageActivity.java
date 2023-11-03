@@ -68,7 +68,7 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
 
     @Override
     public void onStreamReceived(Session session, Stream stream) {
-        Log.d(TAG, "Stream Receieved");
+        Log.d(TAG, "Stream Received");
         if (subscriber == null) {
             subscriber = new Subscriber.Builder(getApplicationContext(), stream).build();
             subscriber.setAudioVolume(100);
@@ -82,7 +82,7 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
 
     @Override
     public void onStreamDropped(Session session, Stream stream) {
-        Log.d(TAG, "Stream dropped -->");
+        Log.d(TAG, "Stream dropped");
         subscriberViewContainer.removeAllViews();
         subscriber = null;
         Log.d(TAG, "End the call now!!! as subscriber has dropped ---->.");
@@ -103,11 +103,10 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vonageactivity_main);
-        Log.d(TAG, "Vonage activity on create --");
+        Log.d(TAG, "Vonage activity created");
         apiKey = getIntent().getExtras().getString("apiKey");
         sessionID = getIntent().getExtras().getString("sessionID");
         token = getIntent().getExtras().getString("token");
-        Log.d(TAG, "api key " + apiKey + " session id " + sessionID + " token " + token);
         subscriberViewContainer = findViewById(R.id.subscriber_container);
         publisherViewContainer = findViewById(R.id.publisher_container);
         pictureInPictureButton = findViewById(R.id.picture_in_picture_button);
@@ -215,7 +214,7 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d(TAG, "Vonage activity on start --");
+        Log.d(TAG, "Vonage activity onStart");
         if (session == null) {
             session = new Session.Builder(getApplicationContext(), apiKey, sessionID)
                 .build();
