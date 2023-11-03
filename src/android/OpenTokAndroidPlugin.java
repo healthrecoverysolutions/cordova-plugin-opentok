@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
+import android.provider.Settings;
 import android.util.Log;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -36,7 +37,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-
 import com.opentok.android.AudioDeviceManager;
 import com.opentok.android.BaseAudioDevice;
 import com.opentok.android.Connection;
@@ -82,7 +82,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     static CordovaWebView _webView;
     public static final String[] perms = {Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
     public CallbackContext permissionsCallback;
-
 
     public class RunnableUpdateViews implements Runnable {
         public JSONArray mProperty;
@@ -565,6 +564,14 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         streamHasAudio = new HashMap<String, Boolean>();
         streamHasVideo = new HashMap<String, Boolean>();
         streamVideoDimensions = new HashMap<String, JSONObject>();
+        String deviceName = Settings.Global.getString(cordova.getContext().getContentResolver(), "device_name");
+        /* DEV-11766 (epic DEV-11304) : Setting custom audio driver for A7 lite devices to enhance volume*/
+        Log.d(TAG, "Device name ----> " + deviceName);
+        if (deviceName!=null && deviceName.contains("A7 Lite")) {
+            AdvancedAudioDevice advancedAudioDevice = new AdvancedAudioDevice(cordova.getContext());
+            AudioDeviceManager.setAudioDevice(advancedAudioDevice);
+            Log.d(TAG, "For A7 lite, setting custom audio driver");
+        }
 
         super.initialize(cordova, webView);
     }
