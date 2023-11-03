@@ -26,8 +26,6 @@ import com.opentok.android.Session;
 import com.opentok.android.Stream;
 import com.opentok.android.Subscriber;
 
-import java.util.HashMap;
-
 public class VonageActivity extends Activity implements Session.ConnectionListener,
     Session.ReconnectionListener, Session.SessionListener{
 
@@ -73,11 +71,12 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
         Log.d(TAG, "Stream Receieved");
         if (subscriber == null) {
             subscriber = new Subscriber.Builder(getApplicationContext(), stream).build();
+            subscriber.setAudioVolume(100);
             session.subscribe(subscriber);
             subscriber.getRenderer().setStyle(BaseVideoRenderer.STYLE_VIDEO_SCALE, BaseVideoRenderer.STYLE_VIDEO_FILL);
            subscriberViewContainer.addView(subscriber.getView());
         } else {
-            Log.d(TAG, "This sample supports just one subscriber");
+            Log.d(TAG, "This currently supports just one subscriber");
         }
     }
 

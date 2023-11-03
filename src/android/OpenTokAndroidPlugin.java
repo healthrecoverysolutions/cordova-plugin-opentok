@@ -367,7 +367,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         public RunnableSubscriber(JSONArray args, Stream stream) {
             this.mProperty = args;
             mStream = stream;
-           // AudioDeviceManager.getAudioDevice().setOutputMode(BaseAudioDevice.OutputMode.SpeakerPhone);
             logMessage("NEW SUBSCRIBER BEING CREATED");
             mSubscriber = new Subscriber.Builder(cordova.getActivity().getApplicationContext(), mStream)
                     .renderer(new OpenTokCustomVideoRenderer(cordova.getActivity().getApplicationContext()))
@@ -513,7 +512,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
 
         // audioLevelListener
         public void onAudioLevelUpdated(SubscriberKit subscriber, float audioLevel) {
-            Log.d(TAG, "Out put mode --> " + AudioDeviceManager.getAudioDevice().getOutputMode());
             JSONObject data = new JSONObject();
             try {
                 data.put("audioLevel", audioLevel);
@@ -575,7 +573,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
 
         super.initialize(cordova, webView);
     }
-private String token = "";
+
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         Log.i(TAG, action);
@@ -592,11 +590,8 @@ private String token = "";
             }
         } else if (action.equals("initSession")) {
              apiKey = args.getString(0);
-            Log.d(TAG, "Obtained apikey --> " + apiKey);
              sessionId = args.getString(1);
-            Log.d(TAG, "Obtained session id --> " + sessionId);
             Log.i(TAG, "init session command called");
-
         } else if (action.equals("setCameraPosition")) {
             myPublisher.mPublisher.cycleCamera();
         } else if (action.equals("publishAudio")) {
@@ -622,8 +617,7 @@ private String token = "";
             myEventListeners.put(args.getString(0), callbackContext);
         } else if (action.equals("connect")) {
             Log.d(TAG, "CONNECT method called");
-            token = args.getString(0);
-            Log.d(TAG, "Obtained token --> " + token);
+            String token = args.getString(0);
             Log.i(TAG, "Will launch custom vonage activity to handle the call");
             Intent intent = new Intent(cordova.getActivity(), VonageActivity.class);
             intent.putExtra("apiKey", apiKey);
