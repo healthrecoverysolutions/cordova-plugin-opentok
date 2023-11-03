@@ -269,22 +269,26 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
 
     @Override
     public void onConnectionCreated(Session session, Connection connection) {
-
+        Log.d(TAG, "onConnectionCreated");
+        // This is not implemented as of now
     }
 
     @Override
     public void onConnectionDestroyed(Session session, Connection connection) {
-
+        Log.d(TAG, "onConnectionDestroyed");
+        // This is not implemented as of now
     }
 
     @Override
     public void onReconnecting(Session session) {
-
+        Log.d(TAG, "onReconnecting");
+        // This is not implemented as of now
     }
 
     @Override
     public void onReconnected(Session session) {
-
+        Log.d(TAG, "onReconnected");
+        // This is not implemented as of now
     }
 
 }
