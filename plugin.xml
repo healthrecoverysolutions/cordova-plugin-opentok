@@ -17,6 +17,7 @@
       <asset src="www/opentok.js" target="opentok.js" />
   	  <source-file src="src/android/OpenTokAndroidPlugin.java" target-dir="src/com/tokbox/cordova/" />
       <source-file src="src/android/OpenTokCustomVideoRenderer.java" target-dir="src/com/tokbox/cordova/" />
+      <source-file src="src/android/AdvancedAudioDevice.java" target-dir="src/com/tokbox/cordova/" />
       <source-file src="src/android/VonageActivity.java" target-dir="src/com/tokbox/cordova/" />
       <source-file src="src/android/layout/vonageactivity_main.xml" target-dir="app/src/main/res/layout/" />
       <source-file src="src/android/values/dimens.xml" target-dir="app/src/main/res/values/" />
