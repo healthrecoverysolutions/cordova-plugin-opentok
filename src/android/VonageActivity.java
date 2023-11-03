@@ -1,6 +1,5 @@
 package com.tokbox.cordova;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.PictureInPictureParams;
 import android.content.res.Configuration;
@@ -11,13 +10,10 @@ import android.util.Log;
 import android.util.Rational;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import androidx.annotation.RequiresApi;
 
@@ -31,32 +27,27 @@ import com.opentok.android.Stream;
 import com.opentok.android.Subscriber;
 
 import java.util.HashMap;
-import java.util.List;
 
-
-
-public class VonageActivity extends Activity /*implements Easy.PermissionCallbacks*/ implements   Session.ConnectionListener,
+public class VonageActivity extends Activity implements Session.ConnectionListener,
     Session.ReconnectionListener, Session.SessionListener{
 
-    private static final String TAG = "OTPlugin";//VonageActivity.class.getSimpleName();
-    private static final int PERMISSIONS_REQUEST_CODE = 124;
+    private static final String TAG = "OTPlugin";
 
     private Session session;
     private Publisher publisher;
     private Subscriber subscriber;
-    public HashMap<String, Subscriber> subscriberCollection; // TODO implement this example for multiple subscribers
-
     private FrameLayout subscriberViewContainer;
     private FrameLayout publisherViewContainer;
     private ImageButton pictureInPictureButton;
     private Button endButton;
-    boolean isMuted = false;
-    boolean isVideoOff = false;
 
-    private /*RelativeLayout*/ LinearLayout imageViewHeader;
+    private LinearLayout imageViewHeader;
     private LinearLayout imageViewFooter;
 
-    // private Session.SessionListener sessionListener = new Session.SessionListener() {
+    private String apiKey;
+    private String sessionID;
+    private String token;
+
     @Override
     public void onConnected(Session session) {
         Log.d(TAG, "Session connected");
@@ -83,13 +74,7 @@ public class VonageActivity extends Activity /*implements Easy.PermissionCallbac
         if (subscriber == null) {
             subscriber = new Subscriber.Builder(getApplicationContext(), stream).build();
             session.subscribe(subscriber);
-//            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
-//                    getResources().getDisplayMetrics().widthPixels, getResources()
-//                    .getDisplayMetrics().heightPixels);
-//            subscriberViewContainer.addView(subscriber.getView(), layoutParams);
-           // mViewContainer.addView(mSubscriber.getView(), layoutParams);
             subscriber.getRenderer().setStyle(BaseVideoRenderer.STYLE_VIDEO_SCALE, BaseVideoRenderer.STYLE_VIDEO_FILL);
-           // subscriber.setSubscriberListener(subscriberListener);
            subscriberViewContainer.addView(subscriber.getView());
         } else {
             Log.d(TAG, "This sample supports just one subscriber");
@@ -112,23 +97,14 @@ public class VonageActivity extends Activity /*implements Easy.PermissionCallbac
     public void onError(Session session, OpentokError opentokError) {
         finishWithMessage("Session error: " + opentokError.getMessage());
     }
-    // };
 
-    private String apiKey;
-    private String sessionID;
-    private String token;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vonageactivity_main);
-
         Log.d(TAG, "Vonage activity on create --");
-//        if(!OpenTokConfig.isValid()) {
-//            finishWithMessage("Invalid OpenTokConfig. " + OpenTokConfig.getDescription());
-//            return;
-//        }
-
         apiKey = getIntent().getExtras().getString("apiKey");
         sessionID = getIntent().getExtras().getString("sessionID");
         token = getIntent().getExtras().getString("token");
@@ -174,31 +150,15 @@ public class VonageActivity extends Activity /*implements Easy.PermissionCallbac
 
         imageViewHeader = findViewById(R.id.imageViewHeader);
         imageViewFooter = findViewById((R.id.imageViewFooter));
-//        final ToggleButton toggleAudio = findViewById(R.id.toggleAudio);
-//        toggleAudio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                if (publisher == null) {
-//                    return;
-//                }
-//
-//                if (isChecked) {
-//                    publisher.setPublishAudio(true);
-//                } else {
-//                    publisher.setPublishAudio(false);
-//                }
-//            }
-//        });
 
-
-
-        /*ToggleButton*/ final ImageButton toggleAudio = findViewById(R.id.toggleAudio);
+        final ImageButton toggleAudio = findViewById(R.id.toggleAudio);
         toggleAudio.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (publisher == null) {
                     return;
                 }
 
-                if (/*toggleAudio.isSelected()*/ /*isMuted*/ toggleAudio.isSelected()) {
+                if (toggleAudio.isSelected()) {
                     toggleAudio.setImageResource(R.drawable.ic_mic);
                     publisher.setPublishAudio(true);
                 } else {
@@ -225,34 +185,9 @@ public class VonageActivity extends Activity /*implements Easy.PermissionCallbac
                 }
                 toggleVideo.setSelected(!toggleVideo.isSelected());  // reverse
 
-//                if (/*toggleVideo.isSelected()*/ isVideoOff) {
-//                    toggleVideo.setImageResource(R.drawable.ic_video_off);
-//                    publisher.setPublishVideo(true);
-//                } else {
-//                    toggleVideo.setImageResource(R.drawable.ic_video);
-//                    publisher.setPublishVideo(false);
-//                }
-//                isVideoOff = !isVideoOff; // reverse
             }
         });
 
-//        final ToggleButton toggleVideo = findViewById(R.id.toggleVideo);
-//        toggleVideo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                if (publisher == null) {
-//                    return;
-//                }
-//
-//                if (isChecked) {
-//                    publisher.setPublishVideo(true);
-//                } else {
-//                    publisher.setPublishVideo(false);
-//                }
-//            }
-//        });
-
-        // String[] perms = new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
-        // EasyPermissions.requestPermissions(this, getString(R.string.rationale_video_app), PERMISSIONS_REQUEST_CODE, perms);
     }
 
     @Override
@@ -263,10 +198,8 @@ public class VonageActivity extends Activity /*implements Easy.PermissionCallbac
             pictureInPictureButton.setVisibility(View.GONE);
             publisherViewContainer.setVisibility(View.GONE);
             publisher.getView().setVisibility(View.GONE);
-            //endButton.setVisibility(View.INVISIBLE);
             imageViewHeader.setVisibility(View.GONE);
             imageViewFooter.setVisibility(View.GONE);
-//            getActionBar().hide();
         } else {
             pictureInPictureButton.setVisibility(View.VISIBLE);
             publisherViewContainer.setVisibility(View.VISIBLE);
@@ -274,12 +207,9 @@ public class VonageActivity extends Activity /*implements Easy.PermissionCallbac
             publisher.getView().refreshDrawableState();
             imageViewHeader.setVisibility(View.VISIBLE);
             imageViewFooter.setVisibility(View.VISIBLE);
-           // endButton.setVisibility(View.VISIBLE);
             if (publisher.getView() instanceof GLSurfaceView) {
                 ((GLSurfaceView) publisher.getView()).setZOrderOnTop(true);
             }
-
-        //    getActionBar().show();
         }
     }
 
@@ -288,15 +218,11 @@ public class VonageActivity extends Activity /*implements Easy.PermissionCallbac
         super.onStart();
         Log.d(TAG, "Vonage activity on start --");
         if (session == null) {
-//            session = new Session.Builder(getApplicationContext(), OpenTokConfig.API_KEY, OpenTokConfig.SESSION_ID)
-//                    .build();
             session = new Session.Builder(getApplicationContext(), apiKey, sessionID)
                 .build();
         }
         session.setSessionListener(this);
         session.setConnectionListener(this);
-        //  session.setSessionListener(sessionListener);
-//        session.connect(OpenTokConfig.TOKEN);
         session.connect(token);
     }
 
@@ -363,13 +289,4 @@ public class VonageActivity extends Activity /*implements Easy.PermissionCallbac
 
     }
 
-//    @Override
-//    public void onPermissionsGranted(int requestCode, List<String> perms) {
-//        Log.d(TAG, "onPermissionsGranted:" + requestCode + ": " + perms);
-//    }
-//
-//    @Override
-//    public void onPermissionsDenied(int requestCode, List<String> perms) {
-//        finishWithMessage("onPermissionsDenied: " + requestCode + ": " + perms);
-//    }
 }
