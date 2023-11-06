@@ -53,7 +53,7 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
         if (publisher == null) {
             publisher = new Publisher.Builder(getApplicationContext()).build();
             session.publish(publisher);
-
+            publisher.getRenderer().setStyle(BaseVideoRenderer.STYLE_VIDEO_SCALE, BaseVideoRenderer.STYLE_VIDEO_FILL);
             publisherViewContainer.addView(publisher.getView());
 
             if (publisher.getView() instanceof GLSurfaceView) {
