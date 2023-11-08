@@ -18,6 +18,46 @@
   	  <source-file src="src/android/OpenTokAndroidPlugin.java" target-dir="src/com/tokbox/cordova/" />
       <source-file src="src/android/OpenTokCustomVideoRenderer.java" target-dir="src/com/tokbox/cordova/" />
       <source-file src="src/android/AdvancedAudioDevice.java" target-dir="src/com/tokbox/cordova/" />
+      <source-file src="src/android/VonageActivity.java" target-dir="src/com/tokbox/cordova/" />
+      <source-file src="src/android/layout/vonageactivity_main.xml" target-dir="app/src/main/res/layout/" />
+      <source-file src="src/android/values/dimens.xml" target-dir="app/src/main/res/values/" />
+      <source-file src="src/android/values/styles.xml" target-dir="app/src/main/res/values/" />
+      <source-file src="src/android/res/drawable/roundcorner.xml" target-dir="app/src/main/res/drawable/" />
+      <source-file src="src/android/res/drawable/roundcorner_footerbtn.xml" target-dir="app/src/main/res/drawable/" />
+      <!--audio-->
+      <source-file src="src/android/res/drawable-mdpi/ic_mic.png" target-dir="app/src/main/res/drawable-mdpi/" />
+      <source-file src="src/android/res/drawable-hdpi/ic_mic.png" target-dir="app/src/main/res/drawable-hdpi/" />
+      <source-file src="src/android/res/drawable-xhdpi/ic_mic.png" target-dir="app/src/main/res/drawable-xhdpi/" />
+      <source-file src="src/android/res/drawable-xxhdpi/ic_mic.png" target-dir="app/src/main/res/drawable-xxhdpi/" />
+      <source-file src="src/android/res/drawable-xxxhdpi/ic_mic.png" target-dir="app/src/main/res/drawable-xxxhdpi/" />
+      <source-file src="src/android/res/drawable-mdpi/ic_muted.png" target-dir="app/src/main/res/drawable-mdpi/" />
+      <source-file src="src/android/res/drawable-hdpi/ic_muted.png" target-dir="app/src/main/res/drawable-hdpi/" />
+      <source-file src="src/android/res/drawable-xhdpi/ic_muted.png" target-dir="app/src/main/res/drawable-xhdpi/" />
+      <source-file src="src/android/res/drawable-xxhdpi/ic_muted.png" target-dir="app/src/main/res/drawable-xxhdpi/" />
+      <source-file src="src/android/res/drawable-xxxhdpi/ic_muted.png" target-dir="app/src/main/res/drawable-xxxhdpi/" />
+      <!--video-->
+      <source-file src="src/android/res/drawable-mdpi/ic_video_off.png" target-dir="app/src/main/res/drawable-mdpi/" />
+      <source-file src="src/android/res/drawable-hdpi/ic_video_off.png" target-dir="app/src/main/res/drawable-hdpi/" />
+      <source-file src="src/android/res/drawable-xhdpi/ic_video_off.png" target-dir="app/src/main/res/drawable-xhdpi/" />
+      <source-file src="src/android/res/drawable-xxhdpi/ic_video_off.png" target-dir="app/src/main/res/drawable-xxhdpi/" />
+      <source-file src="src/android/res/drawable-xxxhdpi/ic_video_off.png" target-dir="app/src/main/res/drawable-xxxhdpi/" />
+      <source-file src="src/android/res/drawable-mdpi/ic_video_on.png" target-dir="app/src/main/res/drawable-mdpi/" />
+      <source-file src="src/android/res/drawable-hdpi/ic_video_on.png" target-dir="app/src/main/res/drawable-hdpi/" />
+      <source-file src="src/android/res/drawable-xhdpi/ic_video_on.png" target-dir="app/src/main/res/drawable-xhdpi/" />
+      <source-file src="src/android/res/drawable-xxhdpi/ic_video_on.png" target-dir="app/src/main/res/drawable-xxhdpi/" />
+      <source-file src="src/android/res/drawable-xxxhdpi/ic_video_on.png" target-dir="app/src/main/res/drawable-xxxhdpi/" />
+      <!--swap-->
+      <source-file src="src/android/res/drawable-mdpi/ic_switch_camera.png" target-dir="app/src/main/res/drawable-mdpi/" />
+      <source-file src="src/android/res/drawable-hdpi/ic_switch_camera.png" target-dir="app/src/main/res/drawable-hdpi/" />
+      <source-file src="src/android/res/drawable-xhdpi/ic_switch_camera.png" target-dir="app/src/main/res/drawable-xhdpi/" />
+      <source-file src="src/android/res/drawable-xxhdpi/ic_switch_camera.png" target-dir="app/src/main/res/drawable-xxhdpi/" />
+      <source-file src="src/android/res/drawable-xxxhdpi/ic_switch_camera.png" target-dir="app/src/main/res/drawable-xxxhdpi/" />
+      <!--minimise-->
+      <source-file src="src/android/res/drawable-mdpi/ic_minimized.png" target-dir="app/src/main/res/drawable-mdpi/" />
+      <source-file src="src/android/res/drawable-hdpi/ic_minimized.png" target-dir="app/src/main/res/drawable-hdpi/" />
+      <source-file src="src/android/res/drawable-xhdpi/ic_minimized.png" target-dir="app/src/main/res/drawable-xhdpi/" />
+      <source-file src="src/android/res/drawable-xxhdpi/ic_minimized.png" target-dir="app/src/main/res/drawable-xxhdpi/" />
+      <source-file src="src/android/res/drawable-xxxhdpi/ic_minimized.png" target-dir="app/src/main/res/drawable-xxxhdpi/" />
       <config-file target="AndroidManifest.xml" parent="/manifest">
         <uses-permission android:name="android.permission.CAMERA" />
         <uses-permission android:name="android.permission.INTERNET" />
@@ -27,6 +67,13 @@
         <uses-feature android:name="android.hardware.camera" android:required="true" />
         <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
       </config-file>
+
+      <config-file target="res/values/colors.xml" parent="/*">
+        <color name="publisher_border_color">#FFFFFF</color>
+        <color name="container_bg">#DDD</color>
+        <color name="hrs_blue">#0073AF</color>
+        <color name="hrs_red">#DF1642</color>
+      </config-file> 
 
       <!-- copy opentok sdk -->
 
