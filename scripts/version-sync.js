@@ -10,7 +10,7 @@ function updateFileVersionRefs(filePath, replaceRegex, replacer) {
 }
 
 function main() {
-    updateFileVersionRefs(`./plugin.xml`, /(<plugin.*version=")([^"]+)(".*)/, `$1${version}$3`);
+    updateFileVersionRefs(`./plugin.xml`, /(version=")([^"]+)(">)/gm, `$1${version}$3`);
 }
 
 main();
