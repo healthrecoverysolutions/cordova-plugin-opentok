@@ -565,7 +565,10 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         String deviceName = Settings.Global.getString(cordova.getContext().getContentResolver(), "device_name");
         /* DEV-11766 (epic DEV-11304) : Setting custom audio driver for A7 lite devices to enhance volume*/
         Log.d(TAG, "Device name ----> " + deviceName);
-        if (deviceName!=null && deviceName.contains("A7 Lite")) {
+        Log.d(TAG, "AudioDeviceManager instance : " + AudioDeviceManager.getAudioDevice());
+        boolean isCustomAudioDriverSet = AudioDeviceManager.getAudioDevice() instanceof AdvancedAudioDevice;
+        Log.d(TAG, "is Custom Audio Driver Set --> " + isCustomAudioDriverSet);
+        if (deviceName!=null && deviceName.contains("A7 Lite") && !isCustomAudioDriverSet) {
             AdvancedAudioDevice advancedAudioDevice = new AdvancedAudioDevice(cordova.getContext());
             AudioDeviceManager.setAudioDevice(advancedAudioDevice);
             Log.d(TAG, "For A7 lite, setting custom audio driver");
