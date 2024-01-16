@@ -8,7 +8,6 @@ import android.opengl.Matrix;
 import android.os.AsyncTask;
 import android.telecom.Call;
 import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 
 import com.opentok.android.BaseVideoRenderer;
@@ -26,14 +25,13 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import timber.log.Timber;
+
 public class OpenTokCustomVideoRenderer extends BaseVideoRenderer {
 
     private Context mContext;
     private GLSurfaceView mView;
-
     private MyRenderer mRenderer;
-    private static final String LOG_TAG = OpenTokCustomVideoRenderer.class.getSimpleName();
-
 
     static class MyRenderer implements GLSurfaceView.Renderer {
 
@@ -329,7 +327,7 @@ public class OpenTokCustomVideoRenderer extends BaseVideoRenderer {
             mFrameLock.unlock();
 
             if(mSaveScreenshot) {
-                Log.d(LOG_TAG, "Capturing frame....");
+                Timber.d("Capturing frame....");
 
                 ByteBuffer bb = frame.getBuffer();
                 bb.clear();
@@ -472,7 +470,7 @@ public class OpenTokCustomVideoRenderer extends BaseVideoRenderer {
 
     @Override
     public void onVideoPropertiesChanged(boolean videoEnabled) {
-        Log.i(LOG_TAG, "onVideoPropertiesChanged " + Boolean.toString(videoEnabled));
+        Timber.i("onVideoPropertiesChanged " + Boolean.toString(videoEnabled));
         mRenderer.disableVideo(!videoEnabled);
     }
 
