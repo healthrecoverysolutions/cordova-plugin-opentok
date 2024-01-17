@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.Rational;
 import android.view.View;
 import android.widget.Button;
@@ -26,10 +25,10 @@ import com.opentok.android.Session;
 import com.opentok.android.Stream;
 import com.opentok.android.Subscriber;
 
+import timber.log.Timber;
+
 public class VonageActivity extends Activity implements Session.ConnectionListener,
     Session.ReconnectionListener, Session.SessionListener{
-
-    private static final String TAG = "OTPlugin";
 
     private Session session;
     private Publisher publisher;
@@ -48,7 +47,7 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
 
     @Override
     public void onConnected(Session session) {
-        Log.d(TAG, "Session connected");
+        Timber.d("Session connected");
 
         if (publisher == null) {
             publisher = new Publisher.Builder(getApplicationContext()).build();
@@ -68,7 +67,7 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
 
     @Override
     public void onStreamReceived(Session session, Stream stream) {
-        Log.d(TAG, "Stream Received");
+        Timber.d("Stream Received");
         if (subscriber == null) {
             subscriber = new Subscriber.Builder(getApplicationContext(), stream).build();
             subscriber.setAudioVolume(100);
@@ -76,16 +75,16 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
             subscriber.getRenderer().setStyle(BaseVideoRenderer.STYLE_VIDEO_SCALE, BaseVideoRenderer.STYLE_VIDEO_FILL);
            subscriberViewContainer.addView(subscriber.getView());
         } else {
-            Log.d(TAG, "This currently supports just one subscriber");
+            Timber.d("This currently supports just one subscriber");
         }
     }
 
     @Override
     public void onStreamDropped(Session session, Stream stream) {
-        Log.d(TAG, "Stream dropped");
+        Timber.d("Stream dropped");
         subscriberViewContainer.removeAllViews();
         subscriber = null;
-        Log.d(TAG, "End the call now!!! as subscriber has dropped ---->.");
+        Timber.d("End the call now!!! as subscriber has dropped ---->.");
         if(session!=null) {
             session.disconnect();
             finish();
@@ -103,7 +102,7 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vonageactivity_main);
-        Log.d(TAG, "Vonage activity created");
+        Timber.d("Vonage activity created");
         apiKey = getIntent().getExtras().getString("apiKey");
         sessionID = getIntent().getExtras().getString("sessionID");
         token = getIntent().getExtras().getString("token");
@@ -127,7 +126,7 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
         endButton.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                Log.d(TAG, "End the call");
+                Timber.d("End the call");
                 if(session!=null) {
                     session.disconnect();
                     finish();
@@ -214,7 +213,7 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d(TAG, "Vonage activity onStart");
+        Timber.d("Vonage activity onStart");
         if (session == null) {
             session = new Session.Builder(getApplicationContext(), apiKey, sessionID)
                 .build();
@@ -262,32 +261,32 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
     }
 
     private void finishWithMessage(String message) {
-        Log.e(TAG, message);
+        Timber.e(message);
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         this.finish();
     }
 
     @Override
     public void onConnectionCreated(Session session, Connection connection) {
-        Log.d(TAG, "onConnectionCreated");
+        Timber.d("onConnectionCreated");
         // This is not implemented as of now
     }
 
     @Override
     public void onConnectionDestroyed(Session session, Connection connection) {
-        Log.d(TAG, "onConnectionDestroyed");
+        Timber.d("onConnectionDestroyed");
         // This is not implemented as of now
     }
 
     @Override
     public void onReconnecting(Session session) {
-        Log.d(TAG, "onReconnecting");
+        Timber.d("onReconnecting");
         // This is not implemented as of now
     }
 
     @Override
     public void onReconnected(Session session) {
-        Log.d(TAG, "onReconnected");
+        Timber.d("onReconnected");
         // This is not implemented as of now
     }
 
