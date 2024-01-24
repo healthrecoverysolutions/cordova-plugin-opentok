@@ -102,6 +102,7 @@
         </config>
         <pods use-frameworks="true">
           <pod name="OTXCFramework" spec="2.26.0" />
+          <pod name="CocoaLumberjack/Swift" spec="~> 3.8" />
         </pods>
       </podspec>
 
