@@ -257,6 +257,7 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
 
         if (publisher != null) {
             publisherViewContainer.removeView(publisher.getView());
+            publisher.getCapturer().onStop();
         }
     }
 
