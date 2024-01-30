@@ -48,6 +48,7 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
     @Override
     public void onConnected(Session session) {
         Timber.d("Session connected");
+        OpenTokAndroidPlugin.getInstance().emitConnectedEvent(session);
 
         if (publisher == null) {
             publisher = new Publisher.Builder(getApplicationContext()).build();
@@ -62,12 +63,15 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
     }
 
     @Override
-    public void onDisconnected(Session session) {
+    public void onDisconnected(Session _session) {
+        Timber.d("Session Disconnected");
+        OpenTokAndroidPlugin.getInstance().emitDisconnectedEvent();
     }
 
     @Override
     public void onStreamReceived(Session session, Stream stream) {
         Timber.d("Stream Received");
+        OpenTokAndroidPlugin.getInstance().emitStreamReceivedEvent(stream);
         if (subscriber == null) {
             subscriber = new Subscriber.Builder(getApplicationContext(), stream).build();
             subscriber.setAudioVolume(100);
@@ -82,6 +86,7 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
     @Override
     public void onStreamDropped(Session session, Stream stream) {
         Timber.d("Stream dropped");
+        OpenTokAndroidPlugin.getInstance().emitStreamDroppedEvent(stream);
         subscriberViewContainer.removeAllViews();
         subscriber = null;
         Timber.d("End the call now!!! as subscriber has dropped ---->.");
@@ -93,10 +98,10 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
 
     @Override
     public void onError(Session session, OpentokError opentokError) {
+        Timber.w("Session error");
+        OpenTokAndroidPlugin.getInstance().emitSessionError(opentokError);
         finishWithMessage("Session error: " + opentokError.getMessage());
     }
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -261,7 +266,7 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
     }
 
     private void finishWithMessage(String message) {
-        Timber.e(message);
+        Timber.e("finishWithMessage %s", message);
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         this.finish();
     }
@@ -269,25 +274,26 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
     @Override
     public void onConnectionCreated(Session session, Connection connection) {
         Timber.d("onConnectionCreated");
-        // This is not implemented as of now
+        OpenTokAndroidPlugin.getInstance().emitConnectionCreatedEvent(connection);
     }
 
     @Override
     public void onConnectionDestroyed(Session session, Connection connection) {
         Timber.d("onConnectionDestroyed");
-        // This is not implemented as of now
+        if (connection != null) {
+            OpenTokAndroidPlugin.getInstance().emitConnectionDestroyedEvent(connection);
+        }
     }
 
     @Override
-    public void onReconnecting(Session session) {
+    public void onReconnecting(Session _session) {
         Timber.d("onReconnecting");
-        // This is not implemented as of now
+        OpenTokAndroidPlugin.getInstance().emitSessionReconnectingEvent();
     }
 
     @Override
-    public void onReconnected(Session session) {
+    public void onReconnected(Session _session) {
         Timber.d("onReconnected");
-        // This is not implemented as of now
+        OpenTokAndroidPlugin.getInstance().emitSessionReconnectedEvent();
     }
-
 }

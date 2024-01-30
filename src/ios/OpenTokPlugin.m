@@ -6,6 +6,8 @@
 //
 
 #import "OpenTokPlugin.h"
+#import <CocoaLumberjack/CocoaLumberjack.h>
+#define ddLogLevel DDLogLevelAll
 
 @implementation OpenTokPlugin{
     OTSession* _session;
@@ -72,9 +74,9 @@
 
     [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error) {
-            NSLog(@"Error Logging");
+            DDLogError(@"dataTaskWithRequest Error %@", error);
         } else {
-            NSLog(@"Logged");
+            DDLogDebug(@"dataTaskWithRequest success!");
         }
     }] resume];
 }
@@ -103,7 +105,7 @@
 
 // Called by TB.initPublisher()
 - (void)initPublisher:(CDVInvokedUrlCommand *)command{
-    NSLog(@"iOS creating Publisher");
+    DDLogDebug(@"iOS creating Publisher");
     /* properties: [name, position.top, position.left, width, height, zIndex,
         publishAudio, publishVideo, cameraName, ratios.widthRatio, ratios.heightRatio,
         audioFallbackEnabled, audioBitrate, audioSource, videoSource, frameRate, cameraResolution]
@@ -197,7 +199,7 @@
     int height = [[command.arguments objectAtIndex:4] intValue];
     int zIndex = [[command.arguments objectAtIndex:5] intValue];
     if ([sid isEqualToString:@"TBPublisher"]) {
-        NSLog(@"The Width is: %d", width);
+        DDLogDebug(@"The Width is: %d", width);
         _publisher.view.frame = CGRectMake(left, top, width, height);
 
         // Set depth location of camera view based on CSS z-index.
@@ -253,7 +255,7 @@
 #pragma mark Publisher Methods
 - (void)publishAudio:(CDVInvokedUrlCommand*)command{
     NSString* publishAudio = [command.arguments objectAtIndex:0];
-    NSLog(@"iOS Altering Audio publishing state, %@", publishAudio);
+    DDLogDebug(@"iOS Altering Audio publishing state, %@", publishAudio);
     BOOL pubAudio = YES;
     if ([publishAudio isEqualToString:@"false"]) {
         pubAudio = NO;
@@ -262,7 +264,7 @@
 }
 - (void)publishVideo:(CDVInvokedUrlCommand*)command{
     NSString* publishVideo = [command.arguments objectAtIndex:0];
-    NSLog(@"iOS Altering Video publishing state, %@", publishVideo);
+    DDLogDebug(@"iOS Altering Video publishing state, %@", publishVideo);
     BOOL pubVideo = YES;
     if ([publishVideo isEqualToString:@"false"]) {
         pubVideo = NO;
@@ -271,7 +273,7 @@
 }
 - (void)setCameraPosition:(CDVInvokedUrlCommand*)command{
     NSString* publishCameraPosition = [command.arguments objectAtIndex:0];
-    NSLog(@"iOS Altering Video camera position, %@", publishCameraPosition);
+    DDLogDebug(@"iOS Altering Video camera position, %@", publishCameraPosition);
 
     if ([publishCameraPosition isEqualToString:@"back"]) {
         [_publisher setCameraPosition:AVCaptureDevicePositionBack];
@@ -280,7 +282,7 @@
     }
 }
 - (void)destroyPublisher:(CDVInvokedUrlCommand *)command{
-    NSLog(@"iOS Destroying Publisher");
+    DDLogDebug(@"iOS Destroying Publisher");
     // Unpublish publisher
     [_session unpublish:_publisher error:nil];
 
@@ -317,6 +319,7 @@
 
 #pragma mark Subscriber Methods
 - (void)subscribeToAudio:(CDVInvokedUrlCommand*)command{
+    DDLogDebug(@"subscribeToAudio");
     NSString* sid = [command.arguments objectAtIndex:0];
     OTSubscriber * subscriber = [subscriberDictionary objectForKey:sid];
     NSString* val = [command.arguments objectAtIndex:1];
@@ -325,11 +328,12 @@
         if ([val isEqualToString:@"false"]) {
             subscribeAudio = NO;
         }
-        NSLog(@"setting subscribeToAudio");
+        DDLogDebug(@"setting subscribeToAudio = %d", subscribeAudio);
         [subscriber setSubscribeToAudio:subscribeAudio];
     }
 }
 - (void)subscribeToVideo:(CDVInvokedUrlCommand*)command{
+    DDLogDebug(@"subscribeToVideo");
     NSString* sid = [command.arguments objectAtIndex:0];
     OTSubscriber * subscriber = [subscriberDictionary objectForKey:sid];
     NSString* val = [command.arguments objectAtIndex:1];
@@ -338,7 +342,7 @@
         if ([val isEqualToString:@"false"]) {
             subscribeVideo = NO;
         }
-        NSLog(@"setting subscribeToVideo");
+        DDLogDebug(@"setting subscribeToVideo = %d", subscribeVideo);
         [subscriber setSubscribeToVideo:subscribeVideo];
     }
 }
@@ -347,7 +351,7 @@
 
 #pragma mark Session Methods
 - (void)connect:(CDVInvokedUrlCommand *)command{
-    NSLog(@"iOS Connecting to Session");
+    DDLogDebug(@"iOS Connecting to Session");
 
     // Get Parameters
     OTError *error = nil;
@@ -355,6 +359,7 @@
     [_session connectWithToken:tbToken error:&error];
     CDVPluginResult* pluginResult;
     if (error) {
+        DDLogError(@"connect error code = %ld", (long)[error code]);
         NSNumber* code = [NSNumber numberWithInt:[error code]];
         NSMutableDictionary* err = [[NSMutableDictionary alloc] init];
         [err setObject:error.localizedDescription forKey:@"message"];
@@ -369,12 +374,13 @@
 
 // Called by session.disconnect()
 - (void)disconnect:(CDVInvokedUrlCommand*)command{
+    DDLogDebug(@"disconnect");
     [_session disconnect:nil];
 }
 
 // Called by session.publish(top, left)
 - (void)publish:(CDVInvokedUrlCommand*)command{
-    NSLog(@"iOS Publish stream to session");
+    DDLogDebug(@"iOS Publish stream to session");
     [_session publish:_publisher error:nil];
 
     // Return to Javascript
@@ -384,17 +390,17 @@
 
 // Called by session.unpublish(...)
 - (void)unpublish:(CDVInvokedUrlCommand*)command{
-    NSLog(@"iOS Unpublishing publisher");
+    DDLogDebug(@"iOS Unpublishing publisher");
     @try {
         [_session unpublish:_publisher error:nil];
     } @catch (NSException *exception) {
-        NSLog(@"Could not unpublish Publisher");
+        DDLogDebug(@"Could not unpublish Publisher");
     }
 }
 
 // Called by session.subscribe(streamId, top, left)
 - (void)subscribe:(CDVInvokedUrlCommand*)command{
-    NSLog(@"iOS subscribing to stream");
+    DDLogDebug(@"iOS subscribing to stream");
 
     // Get Parameters
     NSString* sid = [command.arguments objectAtIndex:0];
@@ -411,9 +417,9 @@
     OTSubscriber* sub = [[OTSubscriber alloc] initWithStream:myStream delegate:self];
     sub.audioLevelDelegate = self;
     sub.networkStatsDelegate = self;
-    NSLog(@"OT subscriber Audio volume before %f", sub.audioVolume);
+    DDLogDebug(@"OT subscriber Audio volume before %f", sub.audioVolume);
     [sub setAudioVolume:100];
-    NSLog(@"OT subscriber Audio volume after %f", sub.audioVolume);
+    DDLogDebug(@"OT subscriber Audio volume after %f", sub.audioVolume);
     [_session subscribe:sub error:nil];
 
     if ([[command.arguments objectAtIndex:6] isEqualToString:@"false"]) {
@@ -438,7 +444,7 @@
 
 // Called by session.unsubscribe(streamId, top, left)
 - (void)unsubscribe:(CDVInvokedUrlCommand*)command{
-    NSLog(@"iOS unSubscribing to stream");
+    DDLogDebug(@"iOS unSubscribing to stream");
     //Get Parameters
     NSString* sid = [command.arguments objectAtIndex:0];
     OTSubscriber * subscriber = [subscriberDictionary objectForKey:sid];
@@ -447,15 +453,15 @@
         [subscriber.view removeFromSuperview];
         [subscriberDictionary removeObjectForKey:sid];
     } @catch (NSException *exception) {
-        NSLog(@"Could not unsubscribe Subscribe");
+        DDLogWarn(@"Could not unsubscribe Subscribe");
     }
 }
 
 // Called by session.unsubscribe(streamId, top, left)
 - (void)signal:(CDVInvokedUrlCommand*)command{
-    NSLog(@"iOS signaling to connectionId %@", [command.arguments objectAtIndex:2]);
+    DDLogDebug(@"iOS signaling to connectionId %@", [command.arguments objectAtIndex:2]);
     OTConnection* c = [connectionDictionary objectForKey: [command.arguments objectAtIndex:2]];
-    NSLog(@"iOS signaling to connection %@", c);
+    DDLogDebug(@"iOS signaling to connection %@", c);
     [_session signalWithType:[command.arguments objectAtIndex:0] string:[command.arguments objectAtIndex:1] connection:c error:nil];
 }
 
@@ -466,7 +472,7 @@
 /*** Subscriber Methods
  ****/
 - (void)subscriberDidConnectToStream:(OTSubscriberKit*)sub{
-    NSLog(@"iOS Connected To Stream");
+    DDLogDebug(@"iOS Connected To Stream");
     NSMutableDictionary* eventData = [[NSMutableDictionary alloc] init];
     NSString* streamId = sub.stream.streamId;
     [eventData setObject:streamId forKey:@"streamId"];
@@ -480,7 +486,7 @@
     [self triggerJSEvent: @"subscriberEvents" withType: @"disconnected" withData: eventData];
 }
 - (void)subscriber:(OTSubscriber*)sub didFailWithError:(OTError*)error{
-    NSLog(@"subscriber didFailWithError %@", error);
+    DDLogError(@"subscriber didFailWithError %@", error);
     NSMutableDictionary* eventData = [[NSMutableDictionary alloc] init];
     NSString* streamId = sub.stream.streamId;
     NSNumber* errorCode = [NSNumber numberWithInt:1600];
@@ -561,7 +567,7 @@
 #pragma mark Session Delegates
 - (void)sessionDidConnect:(OTSession*)session{
     [self logOT: session.connection.connectionId];
-    NSLog(@"iOS Connected to Session");
+    DDLogDebug(@"iOS Connected to Session");
 
     NSMutableDictionary* sessionDict = [[NSMutableDictionary alloc] init];
 
@@ -591,7 +597,7 @@
     [eventData setObject: connectionData forKey: @"connection"];
 
 
-    NSLog(@"object for session is %@", sessionDict);
+    DDLogDebug(@"object for session is %@", sessionDict);
 
     // After session dictionary is constructed, return the result!
     //    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:sessionDict];
@@ -619,27 +625,27 @@
     [self triggerJSEvent: @"sessionEvents" withType: @"connectionDestroyed" withData: data];
 }
 - (void)sessionDidReconnect:(OTSession*)session {
-    NSLog(@"iOS Session reconnected");
+    DDLogDebug(@"iOS Session reconnected");
     [self triggerJSEvent: @"sessionEvents" withType: @"sessionReconnected" withData: nil];
 }
 - (void)sessionDidBeginReconnecting:(OTSession*)session {
-    NSLog(@"iOS Session reconnecting");
+    DDLogDebug(@"iOS Session reconnecting");
     [self triggerJSEvent: @"sessionEvents" withType: @"sessionReconnecting" withData: nil];
 }
 
 
 - (void)session:(OTSession*)mySession streamCreated:(OTStream*)stream{
-    NSLog(@"iOS Received Stream");
+    DDLogDebug(@"iOS Received Stream");
     [self addObserversToStream: stream];
     [streamDictionary setObject:stream forKey:stream.streamId];
     [self triggerStreamEvent: stream withEventType: @"sessionEvents" subEvent: @"streamCreated"];
 }
 - (void)session:(OTSession*)session streamDestroyed:(OTStream *)stream{
-    NSLog(@"iOS Drop Stream");
+    DDLogDebug(@"iOS Drop Stream");
 
     OTSubscriber * subscriber = [subscriberDictionary objectForKey:stream.streamId];
     if (subscriber) {
-        NSLog(@"subscriber found, unsubscribing");
+        DDLogDebug(@"subscriber found, unsubscribing");
         [self removeObserversFromStream: stream];
         [_session unsubscribe:subscriber error:nil];
         [subscriber.view removeFromSuperview];
@@ -648,8 +654,8 @@
     [self triggerStreamEvent: stream withEventType: @"sessionEvents" subEvent: @"streamDestroyed"];
 }
 - (void)session:(OTSession*)session didFailWithError:(OTError*)error {
-    NSLog(@"Error: Session did not Connect");
-    NSLog(@"Error: %@", error);
+    DDLogError(@"Error: Session did not Connect");
+    DDLogError(@"Error: %@", error);
     NSNumber* code = [NSNumber numberWithInt:[error code]];
     NSMutableDictionary* err = [[NSMutableDictionary alloc] init];
     [err setObject:error.localizedDescription forKey:@"message"];
@@ -663,7 +669,7 @@
 }
 - (void)sessionDidDisconnect:(OTSession*)session{
     NSString* alertMessage = [NSString stringWithFormat:@"Session disconnected: (%@)", session.sessionId];
-    NSLog(@"sessionDidDisconnect (%@)", alertMessage);
+    DDLogDebug(@"sessionDidDisconnect (%@)", alertMessage);
 
     // Setting up event object
     for ( id key in subscriberDictionary ) {
@@ -688,7 +694,7 @@
 }
 -(void) session:(OTSession *)session receivedSignalType:(NSString *)type fromConnection:(OTConnection *)connection withString:(NSString *)string{
 
-    NSLog(@"iOS Session Received signal from Connection: %@ with id %@", connection, [connection connectionId]);
+    DDLogDebug(@"iOS Session Received signal from Connection: %@ with id %@", connection, [connection connectionId]);
     NSMutableDictionary* data = [[NSMutableDictionary alloc] init];
     [data setObject: (type == nil) ? @ "" : type forKey: @"type"];
     [data setObject: (string == nil) ? @"" : string forKey: @"data"];
@@ -721,7 +727,7 @@
     [self triggerStreamEvent: stream withEventType: @"publisherEvents" subEvent: @"streamDestroyed"];
 }
 - (void)publisher:(OTPublisher*)publisher didFailWithError:(NSError*) error {
-    NSLog(@"iOS Publisher didFailWithError");
+    DDLogError(@"iOS Publisher didFailWithError -> %@", error);
     NSMutableDictionary* err = [[NSMutableDictionary alloc] init];
     [err setObject:error.localizedDescription forKey:@"message"];
 
@@ -779,7 +785,7 @@
     [self triggerJSEvent: eventType withType: subEvent withData: data];
 }
 - (NSMutableDictionary*)createDataFromConnection:(OTConnection*)connection{
-    NSLog(@"iOS creating data from stream: %@", connection);
+    DDLogDebug(@"iOS creating data from stream: %@", connection);
     NSMutableDictionary* connectionData = [[NSMutableDictionary alloc] init];
     [connectionData setObject: connection.connectionId forKey: @"connectionId" ];
     [connectionData setObject: [NSString stringWithFormat:@"%.0f", [connection.creationTime timeIntervalSince1970]] forKey: @"creationTime" ];
