@@ -77,11 +77,14 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     private HashMap<String, Boolean> streamHasVideo;
     private HashMap<String, JSONObject> streamVideoDimensions;
 
-    static JSONObject viewList = new JSONObject();
-    static CordovaInterface _cordova;
-    static CordovaWebView _webView;
+    private static OpenTokAndroidPlugin mInstance = null;
+    private static JSONObject viewList = new JSONObject();
     public static final String[] perms = {Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
     public CallbackContext permissionsCallback;
+
+    public static OpenTokAndroidPlugin getInstance() {
+        return mInstance;
+    }
 
     public class RunnableUpdateViews implements Runnable {
         public JSONArray mProperty;
@@ -531,11 +534,10 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-        _cordova = cordova;
-        _webView = webView;
+        mInstance = this;
 
         // Make the web view transparent.
-        _webView.getView().setBackgroundColor(Color.argb(1, 0, 0, 0));
+        webView.getView().setBackgroundColor(Color.argb(1, 0, 0, 0));
 
         Timber.d("Initialize Plugin");
         // By default, get a pointer to mainView and add mainView to the viewList as it always exists (hold cordova's view)
@@ -575,6 +577,12 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         }
 
         super.initialize(cordova, webView);
+    }
+
+    @Override
+    public void onDestroy() {
+        Timber.i("onDestroy");
+        mInstance = null;
     }
 
     @Override
@@ -764,11 +772,14 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         sessionConnected = true;
 
         connectionCollection.put(mSession.getConnection().getConnectionId(), mSession.getConnection());
+        emitConnectedEvent(mSession);
+    }
 
+    public void emitConnectedEvent(Session session) {
         JSONObject data = new JSONObject();
         try {
             data.put("status", "connected");
-            JSONObject connection = createDataFromConnection(mSession.getConnection());
+            JSONObject connection = createDataFromConnection(session.getConnection());
             data.put("connection", connection);
         } catch (JSONException e) {
         }
@@ -793,12 +804,15 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         connectionCollection.clear();
         streamCollection.clear();
 
+        emitDisconnectedEvent();
+    }
+
+    public void emitDisconnectedEvent() {
         JSONObject data = new JSONObject();
         try {
             data.put("reason", "clientDisconnected");
         } catch (JSONException e) {
         }
-
         triggerJSEvent("sessionEvents", "sessionDisconnected", data);
     }
 
@@ -806,12 +820,20 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     @Override
     public void onReconnected(Session session) {
         Timber.i("session reconnected");
+        emitSessionReconnectedEvent();
+    }
+
+    public void emitSessionReconnectedEvent() {
         triggerJSEvent("sessionEvents", "sessionReconnected", null);
     }
 
     @Override
     public void onReconnecting(Session session) {
         Timber.i("session reconnecting");
+        emitSessionReconnectingEvent();
+    }
+
+    public void emitSessionReconnectingEvent() {
         triggerJSEvent("sessionEvents", "sessionReconnecting", null);
     }
 
@@ -829,6 +851,10 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             subscriber.removeStreamView();
             subscriberCollection.remove(arg1.getStreamId());
         }
+        emitStreamDroppedEvent(arg1);
+    }
+
+    public void emitStreamDroppedEvent(Stream arg1) {
         triggerStreamEvent(arg1, "sessionEvents", "streamDestroyed");
     }
 
@@ -847,6 +873,10 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         }
         this.streamVideoDimensions.put(arg1.getStreamId(), videoDimensions);
 
+        emitStreamReceivedEvent(arg1);
+    }
+
+    public void emitStreamReceivedEvent(Stream arg1) {
         triggerStreamEvent(arg1, "sessionEvents", "streamCreated");
     }
 
@@ -860,9 +890,11 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     // connectionListener
     public void onConnectionCreated(Session arg0, Connection arg1) {
         Timber.i("connectionCreated");
-
         connectionCollection.put(arg1.getConnectionId(), arg1);
+        emitConnectionCreatedEvent(arg1);
+    }
 
+    public void emitConnectionCreatedEvent(Connection arg1) {
         JSONObject data = new JSONObject();
         try {
             JSONObject connection = createDataFromConnection(arg1);
@@ -875,18 +907,21 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     public void onConnectionDestroyed(Session arg0, Connection arg1) {
         if (arg1!=null) {
             Timber.i("connection dropped: " + arg1.getConnectionId());
-
             connectionCollection.remove(arg1.getConnectionId());
-            JSONObject data = new JSONObject();
-            try {
-                JSONObject connection = createDataFromConnection(arg1);
-                data.put("connection", connection);
-            } catch (JSONException e) {
-            }
-            triggerJSEvent("sessionEvents", "connectionDestroyed", data);
+            emitConnectionDestroyedEvent(arg1);
         } else {
             Timber.i("Connection id does not exist");
         }
+    }
+
+    public void emitConnectionDestroyedEvent(Connection arg1) {
+        JSONObject data = new JSONObject();
+        try {
+            JSONObject connection = createDataFromConnection(arg1);
+            data.put("connection", connection);
+        } catch (JSONException e) {
+        }
+        triggerJSEvent("sessionEvents", "connectionDestroyed", data);
     }
 
     // signalListener
@@ -1103,6 +1138,31 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         PluginResult myResult = new PluginResult(PluginResult.Status.OK, message);
         myResult.setKeepCallback(true);
         myEventListeners.get(event).sendPluginResult(myResult);
+    }
+
+    private static JSONObject getOpentokErrorAsJson(OpentokError opentokError) {
+        JSONObject data = new JSONObject();
+        try {
+            data.put("message", opentokError.getMessage());
+            data.put("errorDomain", opentokError.getErrorDomain().toString());
+            data.put("errorName", opentokError.getErrorCode().name());
+            data.put("errorCode", opentokError.getErrorCode().getErrorCode());
+            Exception systemException = opentokError.getException();
+            if (systemException != null) {
+                data.put("systemMessage", systemException.getMessage());
+            }
+        } catch (JSONException e) {
+        }
+        return data;
+    }
+
+    public void emitSessionError(OpentokError opentokError) {
+        JSONObject data = new JSONObject();
+        try {
+            data.put("opentokError", getOpentokErrorAsJson(opentokError));
+        } catch (JSONException e) {
+        }
+        triggerJSEvent("sessionEvents", "sessionError", data);
     }
 
     @Override
