@@ -101,7 +101,7 @@
           <source url="https://cdn.cocoapods.org/" />
         </config>
         <pods use-frameworks="true">
-          <pod name="OTXCFramework" spec="2.26.0" />
+          <pod name="OTXCFramework" spec="2.27.0" />
         </pods>
       </podspec>
 
