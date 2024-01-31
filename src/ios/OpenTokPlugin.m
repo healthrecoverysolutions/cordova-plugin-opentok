@@ -243,7 +243,7 @@
     [self.commandDelegate sendPluginResult:callbackResult callbackId:command.callbackId];
 }
 
-- (void)isMinimized:(CDVInvokedUrlCommand*)command {
+- (void)getOverlayState:(CDVInvokedUrlCommand*)command {
     NSMutableDictionary* err = [[NSMutableDictionary alloc] init];
     [err setObject:@"unimplemented" forKey:@"message"];
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:err];

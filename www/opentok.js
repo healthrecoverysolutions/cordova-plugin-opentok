@@ -48,8 +48,8 @@ window.OT = {
   removeEventListener: function(type, handler) {
     return this.off(type, handler);
   },
-  isMinimized: function(success, error) {
-    return Cordova.exec(success, error, OTPlugin, 'isMinimized', []);
+  getOverlayState: function(success, error) {
+    return Cordova.exec(success, error, OTPlugin, 'getOverlayState', []);
   },
   minimize: function(success, error) {
     return Cordova.exec(success, error, OTPlugin, 'minimize', []);

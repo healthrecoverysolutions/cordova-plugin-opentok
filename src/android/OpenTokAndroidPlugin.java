@@ -739,8 +739,10 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             }
         } else if (action.equals("exceptionHandler")) {
 
-        } else if (action.equals("isMinimized")) {
-            JSONObject result = new JSONObject().put("minimized", minimized);
+        } else if (action.equals("getOverlayState")) {
+            JSONObject result = new JSONObject()
+                .put("active", mVonageActivity != null)
+                .put("minimized", minimized);
             callbackContext.success(result);
         } else if (action.equals("minimize")) {
             minimize(callbackContext);

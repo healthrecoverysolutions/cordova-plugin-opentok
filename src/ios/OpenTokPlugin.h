@@ -28,7 +28,7 @@
 - (void)initSession:(CDVInvokedUrlCommand*)command;
 - (void)exceptionHandler:(CDVInvokedUrlCommand*)command;
 - (void)updateView:(CDVInvokedUrlCommand*)command;
-- (void)isMinimized:(CDVInvokedUrlCommand*)command;
+- (void)getOverlayState:(CDVInvokedUrlCommand*)command;
 - (void)minimize:(CDVInvokedUrlCommand*)command;
 
 // Publisher
