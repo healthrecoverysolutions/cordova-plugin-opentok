@@ -51,8 +51,8 @@ window.OT = {
   getOverlayState: function(success, error) {
     return Cordova.exec(success, error, OTPlugin, 'getOverlayState', []);
   },
-  minimize: function(success, error) {
-    return Cordova.exec(success, error, OTPlugin, 'minimize', []);
+  setMinimized: function(minimized, success, error) {
+    return Cordova.exec(success, error, OTPlugin, 'setMinimized', [minimized]);
   }
 };
 

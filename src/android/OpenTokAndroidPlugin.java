@@ -744,8 +744,9 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 .put("active", mVonageActivity != null)
                 .put("minimized", minimized);
             callbackContext.success(result);
-        } else if (action.equals("minimize")) {
-            minimize(callbackContext);
+        } else if (action.equals("setMinimized")) {
+            boolean requestMinimized = args.getBoolean(0);
+            setMinimized(requestMinimized, callbackContext);
         }
         return true;
     }
@@ -765,20 +766,28 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         }
     }
 
-    private void minimize(CallbackContext callbackContext) {
+    private void setMinimized(boolean requestMinimized, CallbackContext callbackContext) {
         cordova.getActivity().runOnUiThread(new Runnable() {
-            @RequiresApi(api = Build.VERSION_CODES.O)
             public void run() {
                 try {
-                    if (minimized) {
+                    if (mVonageActivity == null) {
+                        callbackContext.error("NewZoomMeetingActivity not started");
+                        return;
+                    }
+                    if (minimized && requestMinimized) {
                         callbackContext.error("already minimized");
                         return;
                     }
-                    if (mVonageActivity != null) {
+                    if (!minimized && !requestMinimized) {
+                        callbackContext.error("already maximized");
+                        return;
+                    }
+                    if (requestMinimized) {
                         mVonageActivity.minimize();
                         callbackContext.success();
                     } else {
-                        callbackContext.error("VonageActivity not started");
+                        mVonageActivity.maximize();
+                        callbackContext.success();
                     }
                 } catch (Exception ex) {
                     String errorMessage = "minimize Error: " + ex.getMessage();

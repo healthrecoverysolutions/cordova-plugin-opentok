@@ -2,6 +2,7 @@ package com.tokbox.cordova;
 
 import android.app.Activity;
 import android.app.PictureInPictureParams;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
@@ -295,10 +296,24 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void minimize() {
+        Timber.e("minimize");
         PictureInPictureParams params = new PictureInPictureParams.Builder()
             .setAspectRatio(new Rational(9, 16)) // Portrait Aspect Ratio
             .build();
         enterPictureInPictureMode(params);
+    }
+
+    public void maximize() {
+        Timber.e("minimize");
+        // https://stackoverflow.com/a/43288507
+        moveTaskToBack(false);
+        Intent intent = new Intent(VonageActivity.this, VonageActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+        OpenTokAndroidPlugin pluginRef = OpenTokAndroidPlugin.getInstance();
+        if (pluginRef != null) {
+            pluginRef.onVonageActivityPictureInPictureModeChange(false);
+        }
     }
 
     private void finishWithMessage(String message) {

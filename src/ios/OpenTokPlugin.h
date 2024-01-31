@@ -29,7 +29,7 @@
 - (void)exceptionHandler:(CDVInvokedUrlCommand*)command;
 - (void)updateView:(CDVInvokedUrlCommand*)command;
 - (void)getOverlayState:(CDVInvokedUrlCommand*)command;
-- (void)minimize:(CDVInvokedUrlCommand*)command;
+- (void)setMinimized:(CDVInvokedUrlCommand*)command;
 
 // Publisher
 - (void)publishAudio:(CDVInvokedUrlCommand*)command;
