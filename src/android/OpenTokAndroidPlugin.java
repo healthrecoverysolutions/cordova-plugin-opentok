@@ -761,6 +761,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     public void onVonageActivityDestroy(VonageActivity activity) {
         if (mVonageActivity == activity) {
             mVonageActivity = null;
+            minimized = false;
         }
     }
 
@@ -769,6 +770,10 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             @RequiresApi(api = Build.VERSION_CODES.O)
             public void run() {
                 try {
+                    if (minimized) {
+                        callbackContext.error("already minimized");
+                        return;
+                    }
                     if (mVonageActivity != null) {
                         mVonageActivity.minimize();
                         callbackContext.success();
