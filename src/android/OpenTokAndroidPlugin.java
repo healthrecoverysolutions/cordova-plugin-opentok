@@ -774,7 +774,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                         callbackContext.error("VonageActivity not started");
                     }
                 } catch (Exception ex) {
-                    String errorMessage = "setMinimized Error: " + ex.getMessage();
+                    String errorMessage = "minimize Error: " + ex.getMessage();
                     Timber.e(errorMessage);
                     callbackContext.error(errorMessage);
                 }
