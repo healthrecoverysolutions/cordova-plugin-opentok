@@ -243,6 +243,20 @@
     [self.commandDelegate sendPluginResult:callbackResult callbackId:command.callbackId];
 }
 
+- (void)isMinimized:(CDVInvokedUrlCommand*)command {
+    NSMutableDictionary* err = [[NSMutableDictionary alloc] init];
+    [err setObject:@"unimplemented" forKey:@"message"];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:err];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void)minimize:(CDVInvokedUrlCommand*)command {
+    NSMutableDictionary* err = [[NSMutableDictionary alloc] init];
+    [err setObject:@"unimplemented" forKey:@"message"];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:err];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 // Helper function to get the base64 image of a view
 - (NSString*)getBase64PNGFromUIView:(UIView *)view {
     UIImage *screenshot = [view captureViewImage];

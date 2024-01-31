@@ -30,6 +30,9 @@ import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.RequiresApi;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -81,6 +84,8 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     private static JSONObject viewList = new JSONObject();
     public static final String[] perms = {Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
     public CallbackContext permissionsCallback;
+    private boolean minimized = false;
+    private VonageActivity mVonageActivity = null;
 
     public static OpenTokAndroidPlugin getInstance() {
         return mInstance;
@@ -734,8 +739,47 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             }
         } else if (action.equals("exceptionHandler")) {
 
+        } else if (action.equals("isMinimized")) {
+            JSONObject result = new JSONObject().put("minimized", minimized);
+            callbackContext.success(result);
+        } else if (action.equals("minimize")) {
+            minimize(callbackContext);
         }
         return true;
+    }
+
+    public void onVonageActivityPictureInPictureModeChange(boolean isInPictureInPictureMode) {
+        minimized = isInPictureInPictureMode;
+    }
+
+    public void onVonageActivityCreate(VonageActivity activity) {
+        mVonageActivity = activity;
+    }
+
+    public void onVonageActivityDestroy(VonageActivity activity) {
+        if (mVonageActivity == activity) {
+            mVonageActivity = null;
+        }
+    }
+
+    private void minimize(CallbackContext callbackContext) {
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            public void run() {
+                try {
+                    if (mVonageActivity != null) {
+                        mVonageActivity.minimize();
+                        callbackContext.success();
+                    } else {
+                        callbackContext.error("VonageActivity not started");
+                    }
+                } catch (Exception ex) {
+                    String errorMessage = "setMinimized Error: " + ex.getMessage();
+                    Timber.e(errorMessage);
+                    callbackContext.error(errorMessage);
+                }
+            }
+        });
     }
 
     public void onRequestPermissionResult(int requestCode, String[] permissions, int[] results) throws JSONException {
