@@ -257,7 +257,7 @@
 
 - (void)sendUnsupportedResponse:(CDVInvokedUrlCommand*)command {
     NSMutableDictionary* err = [[NSMutableDictionary alloc] init];
-    [err setObject:@"not supported" forKey:@"message"];
+    [err setObject:@"not supported" forKey:@"error"];
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:err];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
