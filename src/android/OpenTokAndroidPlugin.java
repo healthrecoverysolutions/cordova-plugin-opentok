@@ -83,7 +83,8 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     private static OpenTokAndroidPlugin mInstance = null;
     private static JSONObject viewList = new JSONObject();
     public static final String[] perms = {Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
-    public CallbackContext permissionsCallback;
+    public CallbackContext permissionsCallback = null;
+    private CallbackContext sharedEventContext = null;
     private boolean minimized = false;
     private VonageActivity mVonageActivity = null;
 
@@ -740,29 +741,68 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         } else if (action.equals("exceptionHandler")) {
 
         } else if (action.equals("getOverlayState")) {
-            JSONObject result = new JSONObject()
-                .put("active", mVonageActivity != null)
-                .put("minimized", minimized);
-            callbackContext.success(result);
+            callbackContext.success(getCurrentOverlayState());
+
         } else if (action.equals("setMinimized")) {
             boolean requestMinimized = args.getBoolean(0);
             setMinimized(requestMinimized, callbackContext);
+
+        } else if (action.equals("setSharedEventListener")) {
+            sharedEventContext = callbackContext;
         }
         return true;
     }
 
+    private JSONObject getCurrentOverlayState() {
+        boolean active = mVonageActivity != null;
+        JSONObject result = new JSONObject();
+        try {
+            result
+                .put("active", active)
+                .put("minimized", minimized);
+        } catch (JSONException e) {
+            Timber.e("getCurrentOverlayState failed! -> %s", e.getMessage());
+        }
+        return result;
+    }
+
+    private void emitSharedJsEvent(String type, JSONObject data) {
+        Timber.d("emitSharedJsEvent -> %s", type);
+        try {
+            if (sharedEventContext == null) {
+                return;
+            }
+            JSONObject payload = new JSONObject()
+                .put("type", type)
+                .put("data", data);
+            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, payload);
+            pluginResult.setKeepCallback(true);
+            sharedEventContext.sendPluginResult(pluginResult);
+        } catch (JSONException e) {
+            Timber.e("emitSharedJsEvent failed! -> %s", e.getMessage());
+        }
+    }
+
+    private void notifyCurrentOverlayState() {
+        emitSharedJsEvent("overlayStateChanged", getCurrentOverlayState());
+    }
+
     public void onVonageActivityPictureInPictureModeChange(boolean isInPictureInPictureMode) {
         minimized = isInPictureInPictureMode;
+        notifyCurrentOverlayState();
     }
 
     public void onVonageActivityCreate(VonageActivity activity) {
         mVonageActivity = activity;
+        minimized = false;
+        notifyCurrentOverlayState();
     }
 
     public void onVonageActivityDestroy(VonageActivity activity) {
         if (mVonageActivity == activity) {
             mVonageActivity = null;
             minimized = false;
+            notifyCurrentOverlayState();
         }
     }
 
