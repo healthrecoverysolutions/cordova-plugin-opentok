@@ -808,6 +808,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
 
     private void setMinimized(boolean requestMinimized, CallbackContext callbackContext) {
         cordova.getActivity().runOnUiThread(new Runnable() {
+            @RequiresApi(Build.VERSION_CODES.O)
             public void run() {
                 try {
                     if (mVonageActivity == null) {
