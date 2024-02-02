@@ -812,7 +812,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             public void run() {
                 try {
                     if (mVonageActivity == null) {
-                        callbackContext.error("NewZoomMeetingActivity not started");
+                        callbackContext.error("overlay not active");
                         return;
                     }
                     if (minimized && requestMinimized) {
