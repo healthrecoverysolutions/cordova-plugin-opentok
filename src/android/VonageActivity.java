@@ -2,6 +2,7 @@ package com.tokbox.cordova;
 
 import android.app.Activity;
 import android.app.PictureInPictureParams;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
@@ -48,7 +49,10 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
     @Override
     public void onConnected(Session session) {
         Timber.d("Session connected");
-        OpenTokAndroidPlugin.getInstance().emitConnectedEvent(session);
+        OpenTokAndroidPlugin pluginRef = OpenTokAndroidPlugin.getInstance();
+        if (pluginRef != null) {
+            pluginRef.emitConnectedEvent(session);
+        }
 
         if (publisher == null) {
             publisher = new Publisher.Builder(getApplicationContext()).build();
@@ -65,13 +69,19 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
     @Override
     public void onDisconnected(Session _session) {
         Timber.d("Session Disconnected");
-        OpenTokAndroidPlugin.getInstance().emitDisconnectedEvent();
+        OpenTokAndroidPlugin pluginRef = OpenTokAndroidPlugin.getInstance();
+        if (pluginRef != null) {
+            pluginRef.emitDisconnectedEvent();
+        }
     }
 
     @Override
     public void onStreamReceived(Session session, Stream stream) {
         Timber.d("Stream Received");
-        OpenTokAndroidPlugin.getInstance().emitStreamReceivedEvent(stream);
+        OpenTokAndroidPlugin pluginRef = OpenTokAndroidPlugin.getInstance();
+        if (pluginRef != null) {
+            pluginRef.emitStreamReceivedEvent(stream);
+        }
         if (subscriber == null) {
             subscriber = new Subscriber.Builder(getApplicationContext(), stream).build();
             subscriber.setAudioVolume(100);
@@ -86,7 +96,10 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
     @Override
     public void onStreamDropped(Session session, Stream stream) {
         Timber.d("Stream dropped");
-        OpenTokAndroidPlugin.getInstance().emitStreamDroppedEvent(stream);
+        OpenTokAndroidPlugin pluginRef = OpenTokAndroidPlugin.getInstance();
+        if (pluginRef != null) {
+            pluginRef.emitStreamDroppedEvent(stream);
+        }
         subscriberViewContainer.removeAllViews();
         subscriber = null;
         Timber.d("End the call now!!! as subscriber has dropped ---->.");
@@ -99,7 +112,10 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
     @Override
     public void onError(Session session, OpentokError opentokError) {
         Timber.w("Session error");
-        OpenTokAndroidPlugin.getInstance().emitSessionError(opentokError);
+        OpenTokAndroidPlugin pluginRef = OpenTokAndroidPlugin.getInstance();
+        if (pluginRef != null) {
+            pluginRef.emitSessionError(opentokError);
+        }
         finishWithMessage("Session error: " + opentokError.getMessage());
     }
 
@@ -119,12 +135,7 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View v) {
-                PictureInPictureParams params = new PictureInPictureParams.Builder()
-                    .setAspectRatio(new Rational(9, 16)) // Portrait Aspect Ratio
-                    .build();
-
-                enterPictureInPictureMode(params);
-
+                minimize();
             }
         });
 
@@ -190,11 +201,20 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
             }
         });
 
+        OpenTokAndroidPlugin pluginRef = OpenTokAndroidPlugin.getInstance();
+        if (pluginRef != null) {
+            pluginRef.onVonageActivityCreate(this);
+        }
     }
 
     @Override
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+
+        OpenTokAndroidPlugin pluginRef = OpenTokAndroidPlugin.getInstance();
+        if (pluginRef != null) {
+            pluginRef.onVonageActivityPictureInPictureModeChange(isInPictureInPictureMode);
+        }
 
         if (isInPictureInPictureMode) {
             pictureInPictureButton.setVisibility(View.GONE);
@@ -266,6 +286,37 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        OpenTokAndroidPlugin pluginRef = OpenTokAndroidPlugin.getInstance();
+        if (pluginRef != null) {
+            pluginRef.onVonageActivityDestroy(this);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void minimize() {
+        Timber.e("minimize");
+        PictureInPictureParams params = new PictureInPictureParams.Builder()
+            .setAspectRatio(new Rational(9, 16)) // Portrait Aspect Ratio
+            .build();
+        enterPictureInPictureMode(params);
+    }
+
+    public void maximize() {
+        Timber.e("minimize");
+        // https://stackoverflow.com/a/43288507
+        moveTaskToBack(false);
+        Intent intent = new Intent(VonageActivity.this, VonageActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+        OpenTokAndroidPlugin pluginRef = OpenTokAndroidPlugin.getInstance();
+        if (pluginRef != null) {
+            pluginRef.onVonageActivityPictureInPictureModeChange(false);
+        }
+    }
+
     private void finishWithMessage(String message) {
         Timber.e("finishWithMessage %s", message);
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
@@ -275,26 +326,38 @@ public class VonageActivity extends Activity implements Session.ConnectionListen
     @Override
     public void onConnectionCreated(Session session, Connection connection) {
         Timber.d("onConnectionCreated");
-        OpenTokAndroidPlugin.getInstance().emitConnectionCreatedEvent(connection);
+        OpenTokAndroidPlugin pluginRef = OpenTokAndroidPlugin.getInstance();
+        if (pluginRef != null) {
+            pluginRef.emitConnectionCreatedEvent(connection);
+        }
     }
 
     @Override
     public void onConnectionDestroyed(Session session, Connection connection) {
         Timber.d("onConnectionDestroyed");
         if (connection != null) {
-            OpenTokAndroidPlugin.getInstance().emitConnectionDestroyedEvent(connection);
+            OpenTokAndroidPlugin pluginRef = OpenTokAndroidPlugin.getInstance();
+            if (pluginRef != null) {
+                pluginRef.emitConnectionDestroyedEvent(connection);
+            }
         }
     }
 
     @Override
     public void onReconnecting(Session _session) {
         Timber.d("onReconnecting");
-        OpenTokAndroidPlugin.getInstance().emitSessionReconnectingEvent();
+        OpenTokAndroidPlugin pluginRef = OpenTokAndroidPlugin.getInstance();
+        if (pluginRef != null) {
+            pluginRef.emitSessionReconnectingEvent();
+        }
     }
 
     @Override
     public void onReconnected(Session _session) {
         Timber.d("onReconnected");
-        OpenTokAndroidPlugin.getInstance().emitSessionReconnectedEvent();
+        OpenTokAndroidPlugin pluginRef = OpenTokAndroidPlugin.getInstance();
+        if (pluginRef != null) {
+            pluginRef.emitSessionReconnectedEvent();
+        }
     }
 }

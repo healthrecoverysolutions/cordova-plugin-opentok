@@ -243,6 +243,25 @@
     [self.commandDelegate sendPluginResult:callbackResult callbackId:command.callbackId];
 }
 
+- (void)getOverlayState:(CDVInvokedUrlCommand*)command {
+    [self sendUnsupportedResponse: command];
+}
+
+- (void)setMinimized:(CDVInvokedUrlCommand*)command {
+    [self sendUnsupportedResponse: command];
+}
+
+- (void)setSharedEventListener:(CDVInvokedUrlCommand*)command {
+    [self sendUnsupportedResponse: command];
+}
+
+- (void)sendUnsupportedResponse:(CDVInvokedUrlCommand*)command {
+    NSMutableDictionary* err = [[NSMutableDictionary alloc] init];
+    [err setObject:@"not supported" forKey:@"error"];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:err];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 // Helper function to get the base64 image of a view
 - (NSString*)getBase64PNGFromUIView:(UIView *)view {
     UIImage *screenshot = [view captureViewImage];
