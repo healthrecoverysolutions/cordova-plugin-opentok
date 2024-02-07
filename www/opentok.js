@@ -72,10 +72,15 @@ window.OT = {
       return;
     }
     var listener = function (payload) {
-      if (payload 
-        && typeof payload.data === 'string' 
-        && typeof listenerMap[payload.type] === 'function') {
+      if (!payload || (typeof payload.type !== 'string')) {
+        return;
+      }
+      if (typeof listenerMap[payload.type] === 'function') {
         listenerMap[payload.type](payload.data);
+      } else if (typeof listenerMap['onMessage'] === 'function') {
+        listenerMap['onMessage'](payload);
+      } else {
+        console.log('WARNING: OT.setSharedEventListenerMap() unhandled payload type = "' + payload.type + '"');
       }
     };
     var error = function (err) {
