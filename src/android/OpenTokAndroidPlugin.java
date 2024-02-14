@@ -16,7 +16,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.Manifest;
-import android.content.Intent;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.content.pm.PackageManager;
@@ -26,7 +25,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
-import android.provider.Settings;
+
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,8 +35,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.opentok.android.AudioDeviceManager;
-import com.opentok.android.BaseAudioDevice;
+
 import com.opentok.android.Connection;
 import com.opentok.android.OpentokError;
 import com.opentok.android.Publisher;
@@ -367,13 +365,11 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         public RunnableSubscriber(JSONArray args, Stream stream) {
             this.mProperty = args;
             mStream = stream;
+
             logMessage("NEW SUBSCRIBER BEING CREATED");
             mSubscriber = new Subscriber.Builder(cordova.getActivity().getApplicationContext(), mStream)
                     .renderer(new OpenTokCustomVideoRenderer(cordova.getActivity().getApplicationContext()))
                     .build();
-            Timber.d("When New Subscriber Created Get audio volume--> " + mSubscriber.getAudioVolume());
-            mSubscriber.setAudioVolume(100);
-            Timber.d("After setting -->When New Subscriber Created Get audio volume--> " + mSubscriber.getAudioVolume());
             mSubscriber.setVideoListener(this);
             mSubscriber.setSubscriberListener(this);
             mSubscriber.setAudioLevelListener(this);
@@ -562,17 +558,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         streamHasAudio = new HashMap<String, Boolean>();
         streamHasVideo = new HashMap<String, Boolean>();
         streamVideoDimensions = new HashMap<String, JSONObject>();
-        String deviceName = Settings.Global.getString(cordova.getContext().getContentResolver(), "device_name");
-        /* DEV-11766 (epic DEV-11304) : Setting custom audio driver for A7 lite devices to enhance volume*/
-        Timber.d("Device name ----> " + deviceName);
-        Timber.d("AudioDeviceManager instance : " + AudioDeviceManager.getAudioDevice());
-        boolean isCustomAudioDriverSet = AudioDeviceManager.getAudioDevice() instanceof AdvancedAudioDevice;
-        Timber.d("is Custom Audio Driver Set --> " + isCustomAudioDriverSet);
-        if (deviceName!=null && deviceName.contains("A7 Lite") && !isCustomAudioDriverSet) {
-            AdvancedAudioDevice advancedAudioDevice = new AdvancedAudioDevice(cordova.getContext());
-            AudioDeviceManager.setAudioDevice(advancedAudioDevice);
-            Timber.d("For A7 lite, setting custom audio driver");
-        }
 
         super.initialize(cordova, webView);
     }
@@ -582,8 +567,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         Timber.i(action);
         // TB Methods
         if (action.equals("initPublisher")) {
-            // myPublisher = new RunnablePublisher(args);
-            Timber.d("will init publisher from custom vonage activity part");
+            myPublisher = new RunnablePublisher(args);
         } else if (action.equals("destroyPublisher")) {
             if (myPublisher != null) {
                 myPublisher.destroyPublisher();
@@ -592,9 +576,18 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 return true;
             }
         } else if (action.equals("initSession")) {
-             apiKey = args.getString(0);
-             sessionId = args.getString(1);
-            Timber.i("init session command called");
+            apiKey = args.getString(0);
+            sessionId = args.getString(1);
+            Timber.i("created new session with data: " + args.toString());
+            mSession = new Session(this.cordova.getActivity().getApplicationContext(), apiKey, sessionId);
+            mSession.setSessionListener(this);
+            mSession.setConnectionListener(this);
+            mSession.setReconnectionListener(this);
+            mSession.setSignalListener(this);
+            mSession.setStreamPropertiesListener(this);
+            logOT(null);
+
+            // publisher methods
         } else if (action.equals("setCameraPosition")) {
             myPublisher.mPublisher.cycleCamera();
         } else if (action.equals("publishAudio")) {
@@ -619,15 +612,8 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             Timber.i("adding new event - " + args.getString(0));
             myEventListeners.put(args.getString(0), callbackContext);
         } else if (action.equals("connect")) {
-            Timber.d("CONNECT method called");
-            String token = args.getString(0);
-            Timber.i("Will launch custom vonage activity to handle the call");
-            Intent intent = new Intent(cordova.getActivity(), VonageActivity.class);
-            intent.putExtra("apiKey", apiKey);
-            intent.putExtra("sessionID", sessionId);
-            intent.putExtra("token", token);
-            cordova.getActivity().startActivity(intent);
-            // mSession.connect(args.getString(0));
+            Timber.i("connect command called");
+            mSession.connect(args.getString(0));
             callbackContext.success();
         } else if (action.equals("disconnect")) {
             mSession.disconnect();

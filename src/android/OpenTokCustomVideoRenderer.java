@@ -28,7 +28,6 @@ import javax.microedition.khronos.opengles.GL10;
 import timber.log.Timber;
 
 public class OpenTokCustomVideoRenderer extends BaseVideoRenderer {
-
     private Context mContext;
     private GLSurfaceView mView;
     private MyRenderer mRenderer;
