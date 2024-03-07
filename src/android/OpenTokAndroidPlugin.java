@@ -16,7 +16,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.Manifest;
-import android.content.Intent;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.content.pm.PackageManager;
@@ -39,8 +38,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
 import com.opentok.android.AudioDeviceManager;
-import com.opentok.android.BaseAudioDevice;
 import com.opentok.android.Connection;
 import com.opentok.android.OpentokError;
 import com.opentok.android.Publisher;
@@ -380,6 +379,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         public RunnableSubscriber(JSONArray args, Stream stream) {
             this.mProperty = args;
             mStream = stream;
+
             logMessage("NEW SUBSCRIBER BEING CREATED");
             mSubscriber = new Subscriber.Builder(cordova.getActivity().getApplicationContext(), mStream)
                     .renderer(new OpenTokCustomVideoRenderer(cordova.getActivity().getApplicationContext()))
@@ -604,7 +604,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 Timber.d("init publisher for webview");
                 myPublisher = new RunnablePublisher(args);
             } else {
-                Timber.d("will init publisher from custom vonage activity part");
+                myPublisher = new RunnablePublisher(args);
             }
         } else if (action.equals("destroyPublisher")) {
             if (myPublisher != null) {
@@ -627,7 +627,14 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 mSession.setStreamPropertiesListener(this);
                 logOT(null);
             } else {
-                Timber.i("will init new session from native activity");
+                Timber.i(TAG, "created new session with data: " + args.toString());
+                mSession = new Session(this.cordova.getActivity().getApplicationContext(), apiKey, sessionId);
+                mSession.setSessionListener(this);
+                mSession.setConnectionListener(this);
+                mSession.setReconnectionListener(this);
+                mSession.setSignalListener(this);
+                mSession.setStreamPropertiesListener(this);
+                logOT(null);
             }
         } else if (action.equals("setCameraPosition")) {
             myPublisher.mPublisher.cycleCamera();
@@ -659,12 +666,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 Timber.i("Will connect webview session");
                 mSession.connect(token);
             } else {
-                Timber.i("Will launch custom vonage activity to handle the call");
-                Intent intent = new Intent(cordova.getActivity(), VonageActivity.class);
-                intent.putExtra("apiKey", apiKey);
-                intent.putExtra("sessionID", sessionId);
-                intent.putExtra("token", token);
-                cordova.getActivity().startActivity(intent);
+                mSession.connect(token);
                 callbackContext.success();
             }
         } else if (action.equals("disconnect")) {
