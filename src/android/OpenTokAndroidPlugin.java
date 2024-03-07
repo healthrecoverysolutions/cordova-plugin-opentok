@@ -89,7 +89,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     public CallbackContext permissionsCallback = null;
     private CallbackContext sharedEventContext = null;
     private boolean minimized = false;
-    private VonageActivity mVonageActivity = null;
 
     public static OpenTokAndroidPlugin getInstance() {
         return mInstance;
@@ -627,7 +626,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 mSession.setStreamPropertiesListener(this);
                 logOT(null);
             } else {
-                Timber.i(TAG, "created new session with data: " + args.toString());
+                Timber.i("created new session with data: " + args.toString());
                 mSession = new Session(this.cordova.getActivity().getApplicationContext(), apiKey, sessionId);
                 mSession.setSessionListener(this);
                 mSession.setConnectionListener(this);
@@ -780,15 +779,15 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     }
 
     private JSONObject getCurrentOverlayState() {
-        boolean active = mVonageActivity != null;
+//        boolean active = mVonageActivity != null;
         JSONObject result = new JSONObject();
-        try {
-            result
-                .put("active", active)
-                .put("minimized", minimized);
-        } catch (JSONException e) {
-            Timber.e("getCurrentOverlayState failed! -> %s", e.getMessage());
-        }
+//        try {
+//            result
+//                .put("active", active)
+//                .put("minimized", minimized);
+//        } catch (JSONException e) {
+//            Timber.e("getCurrentOverlayState failed! -> %s", e.getMessage());
+//        }
         return result;
     }
 
@@ -809,38 +808,19 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         }
     }
 
-    private void notifyCurrentOverlayState() {
-        emitSharedJsEvent("overlayStateChanged", getCurrentOverlayState());
-    }
-
-    public void onVonageActivityPictureInPictureModeChange(boolean isInPictureInPictureMode) {
-        minimized = isInPictureInPictureMode;
-        notifyCurrentOverlayState();
-    }
-
-    public void onVonageActivityCreate(VonageActivity activity) {
-        mVonageActivity = activity;
-        minimized = false;
-        notifyCurrentOverlayState();
-    }
-
-    public void onVonageActivityDestroy(VonageActivity activity) {
-        if (mVonageActivity == activity) {
-            mVonageActivity = null;
-            minimized = false;
-            notifyCurrentOverlayState();
-        }
-    }
+//    private void notifyCurrentOverlayState() {
+//        emitSharedJsEvent("overlayStateChanged", getCurrentOverlayState());
+//    }
 
     private void setMinimized(boolean requestMinimized, CallbackContext callbackContext) {
         cordova.getActivity().runOnUiThread(new Runnable() {
             @RequiresApi(Build.VERSION_CODES.O)
             public void run() {
                 try {
-                    if (mVonageActivity == null) {
-                        callbackContext.error("overlay not active");
-                        return;
-                    }
+//                    if (mVonageActivity == null) {
+//                        callbackContext.error("overlay not active");
+//                        return;
+//                    }
                     if (minimized && requestMinimized) {
                         callbackContext.error("already minimized");
                         return;
@@ -850,10 +830,10 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                         return;
                     }
                     if (requestMinimized) {
-                        mVonageActivity.minimize();
+                        // mVonageActivity.minimize();
                         callbackContext.success();
                     } else {
-                        mVonageActivity.maximize();
+                        // mVonageActivity.maximize();
                         callbackContext.success();
                     }
                 } catch (Exception ex) {
