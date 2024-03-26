@@ -273,7 +273,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 });
 
             if (this.mPublisher != null) {
-                this.mPublisher.destroy();
+                this.mPublisher.setPublishVideo(false);
                 this.mPublisher = null;
             }
         }
