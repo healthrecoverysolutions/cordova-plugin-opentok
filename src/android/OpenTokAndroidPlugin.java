@@ -137,6 +137,30 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     private static final String DATA_KEY_STREAM = "stream";
     private static final String DATA_KEY_ID = "id";
 
+    // Cordova actions
+    private static final String ACTION_INIT_PUBLISHER = "initPublisher";
+    private static final String ACTION_DESTROY_PUBLISHER = "destroyPublisher";
+    private static final String ACTION_INIT_SESSION = "initSession";
+    private static final String ACTION_SET_CAMERA_POSITION = "setCameraPosition";
+    private static final String ACTION_PUBLISH_AUDIO = "publishAudio";
+    private static final String ACTION_PUBLISH_VIDEO = "publishVideo";
+    private static final String ACTION_ADD_EVENT = "addEvent";
+    private static final String ACTION_CONNECT = "connect";
+    private static final String ACTION_DISCONNECT = "disconnect";
+    private static final String ACTION_PUBLISH = "publish";
+    private static final String ACTION_SIGNAL = "signal";
+    private static final String ACTION_UNPUBLISH = "unpublish";
+    private static final String ACTION_UNSUBSCRIBE = "unsubscribe";
+    private static final String ACTION_SUBSCRIBE = "subscribe";
+    private static final String ACTION_SUBSCRIBE_TO_AUDIO = "subscribeToAudio";
+    private static final String ACTION_SUBSCRIBE_TO_VIDEO = "subscribeToVideo";
+    private static final String ACTION_UPDATE_VIEW = "updateView";
+    private static final String ACTION_GET_IMG_DATA = "getImgData";
+    private static final String ACTION_EXCEPTION_HANDLER = "exceptionHandler";
+    private static final String ACTION_GET_OVERLAY_STATE = "getOverlayState";
+    private static final String ACTION_SET_MINIMIZED = "setMinimized";
+    private static final String ACTION_SET_SHARED_EVENT_LISTENER = "setSharedEventListener";
+
     private String sessionId;
     private String apiKey;
     protected Session mSession;
@@ -669,21 +693,21 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         Timber.i(action);
         // TB Methods
-        if (action.equals("initPublisher")) {
+        if (ACTION_INIT_PUBLISHER.equals(action)) {
             if (USE_WEBVIEW_SESSION) {
                 Timber.d("init publisher for webview");
                 myPublisher = new RunnablePublisher(args);
             } else {
                 myPublisher = new RunnablePublisher(args);
             }
-        } else if (action.equals("destroyPublisher")) {
+        } else if (ACTION_DESTROY_PUBLISHER.equals(action)) {
             if (myPublisher != null) {
                 myPublisher.destroyPublisher();
                 myPublisher = null;
                 callbackContext.success();
                 return true;
             }
-        } else if (action.equals("initSession")) {
+        } else if (ACTION_INIT_SESSION.equals(action)) {
             Timber.i("init session command called");
             apiKey = args.getString(0);
             sessionId = args.getString(1);
@@ -706,9 +730,9 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 mSession.setStreamPropertiesListener(this);
                 logOT(null);
             }
-        } else if (action.equals("setCameraPosition")) {
+        } else if (ACTION_SET_CAMERA_POSITION.equals(action)) {
             myPublisher.mPublisher.cycleCamera();
-        } else if (action.equals("publishAudio")) {
+        } else if (ACTION_PUBLISH_AUDIO.equals(action)) {
             String val = args.getString(0);
             boolean publishAudio = true;
             if (val.equalsIgnoreCase("false")) {
@@ -716,7 +740,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             }
             Timber.i("setting publishAudio");
             myPublisher.mPublisher.setPublishAudio(publishAudio);
-        } else if (action.equals("publishVideo")) {
+        } else if (ACTION_PUBLISH_VIDEO.equals(action)) {
             String val = args.getString(0);
             boolean publishVideo = true;
             if (val.equalsIgnoreCase("false")) {
@@ -726,10 +750,10 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             myPublisher.mPublisher.setPublishVideo(publishVideo);
 
             // session Methods
-        } else if (action.equals("addEvent")) {
+        } else if (ACTION_ADD_EVENT.equals(action)) {
             Timber.i("adding new event - " + args.getString(0));
             myEventListeners.put(args.getString(0), callbackContext);
-        } else if (action.equals("connect")) {
+        } else if (ACTION_CONNECT.equals(action)) {
             Timber.d("CONNECT method called");
             String token = args.getString(0);
             if (USE_WEBVIEW_SESSION) {
@@ -739,9 +763,9 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 mSession.connect(token);
                 callbackContext.success();
             }
-        } else if (action.equals("disconnect")) {
+        } else if (ACTION_DISCONNECT.equals(action)) {
             mSession.disconnect();
-        } else if (action.equals("publish")) {
+        } else if (ACTION_PUBLISH.equals(action)) {
             if (sessionConnected) {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                     cordova.requestPermissions(this, 0, perms);
@@ -751,21 +775,21 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                     Timber.i("publisher is publishing");
                 }
             }
-        } else if (action.equals("signal")) {
+        } else if (ACTION_SIGNAL.equals(action)) {
             Connection c = connectionCollection.get(args.getString(2));
             if (c == null) {
                 mSession.sendSignal(args.getString(0), args.getString(1));
             } else {
                 mSession.sendSignal(args.getString(0), args.getString(1), c);
             }
-        } else if (action.equals("unpublish")) {
+        } else if (ACTION_UNPUBLISH.equals(action)) {
             Timber.i("unpublish command called");
             if (myPublisher != null) {
                 myPublisher.stopPublishing();
                 callbackContext.success();
                 return true;
             }
-        } else if (action.equals("unsubscribe")) {
+        } else if (ACTION_UNSUBSCRIBE.equals(action)) {
             Timber.i("unsubscribe command called");
             Timber.i("unsubscribe data: " + args.toString() );
             final RunnableSubscriber runsub = subscriberCollection.get( args.getString(0) );
@@ -774,13 +798,13 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 callbackContext.success();
                 return true;
             }
-        } else if (action.equals("subscribe")) {
+        } else if (ACTION_SUBSCRIBE.equals(action)) {
             Timber.i("subscribe command called");
             Timber.i("subscribe data: " + args.toString());
             Stream stream = streamCollection.get(args.getString(0));
             RunnableSubscriber runsub = new RunnableSubscriber(args, stream);
             subscriberCollection.put(stream.getStreamId(), runsub);
-        } else if (action.equals("subscribeToAudio")) {
+        } else if (ACTION_SUBSCRIBE_TO_AUDIO.equals(action)) {
             RunnableSubscriber runsub = subscriberCollection.get(args.getString(0));
             String val = args.getString(1);
             if(runsub != null) {
@@ -791,7 +815,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 Timber.i("setting subscribeToAudio");
                 runsub.subscribeToAudio(subscribeAudio);
             }
-        } else if (action.equals("subscribeToVideo")) {
+        } else if (ACTION_SUBSCRIBE_TO_VIDEO.equals(action)) {
             RunnableSubscriber runsub = subscriberCollection.get(args.getString(0));
             String val = args.getString(1);
             if(runsub != null) {
@@ -802,7 +826,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 Timber.i("setting subscribeToVideo");
                 runsub.subscribeToVideo(subscribeVideo);
             }
-        } else if (action.equals("updateView")) {
+        } else if (ACTION_UPDATE_VIEW.equals(action)) {
             if (args.getString(0).equals("TBPublisher") && myPublisher != null && sessionConnected) {
                 Timber.i("updating view for publisher");
                 myPublisher.setPropertyFromArray(args);
@@ -814,7 +838,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                     cordova.getActivity().runOnUiThread(runsub);
                 }
             }
-        } else if (action.equals("getImgData")) {
+        } else if (ACTION_GET_IMG_DATA.equals(action)) {
             if (args.getString(0).equals("TBPublisher") && myPublisher != null && sessionConnected) {
                 cordova.getThreadPool().execute(new Runnable() {
                     public void run() {
@@ -834,20 +858,18 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                   return true;
                 }
             }
-        } else if (action.equals("exceptionHandler")) {
+        } else if (ACTION_EXCEPTION_HANDLER.equals(action)) {
+            Timber.d("ignoring action '%s' (unimplemented)", ACTION_EXCEPTION_HANDLER);
 
-        } else if (action.equals("getOverlayState")) {
+        } else if (ACTION_GET_OVERLAY_STATE.equals(action)) {
             callbackContext.success(getCurrentOverlayState());
 
-        } else if (action.equals("setMinimized")) {
+        } else if (ACTION_SET_MINIMIZED.equals(action)) {
             boolean requestMinimized = args.getBoolean(0);
             setMinimized(requestMinimized, callbackContext);
 
-        } else if (action.equals("setSharedEventListener")) {
-            if (sharedEventContext != null) {
-                sharedEventContext.error("event listener callback overwritten");
-            }
-            sharedEventContext = callbackContext;
+        } else if (ACTION_SET_SHARED_EVENT_LISTENER.equals(action)) {
+            setSharedEventListener(callbackContext);
         }
         return true;
     }
@@ -869,6 +891,14 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     private void emitCommonEvent(String scope, String type, JSONObject data) {
         triggerJSEvent(scope, type, data);
         emitSharedJsEvent(scope, type, data);
+    }
+    
+    private void setSharedEventListener(CallbackContext callbackContext)
+    {
+        if (sharedEventContext != null) {
+            sharedEventContext.error("event listener callback overwritten");
+        }
+        sharedEventContext = callbackContext;
     }
 
     /**
