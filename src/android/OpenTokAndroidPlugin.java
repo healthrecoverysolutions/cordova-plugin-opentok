@@ -893,8 +893,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         emitSharedJsEvent(scope, type, data);
     }
     
-    private void setSharedEventListener(CallbackContext callbackContext)
-    {
+    private void setSharedEventListener(CallbackContext callbackContext) {
         if (sharedEventContext != null) {
             sharedEventContext.error("event listener callback overwritten");
         }
