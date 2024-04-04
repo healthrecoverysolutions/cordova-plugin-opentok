@@ -74,15 +74,16 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     private static final String REASON_CLIENT_DISCONNECTED = "clientDisconnected";
     private static final String STATUS_CONNECTED = "connected";
 
-    // Non-event-object keys
-    private static final String KEY_SESSION_EVENTS = "sessionEvents";
-    private static final String KEY_PUBLISHER_EVENTS = "publisherEvents";
-    private static final String KEY_SUBSCRIBER_EVENTS = "subscriberEvents";
-
     // Top-level keys for event objects
+    private static final String KEY_SCOPE = "scope"; // used by `emitSharedJsEvent()`
     private static final String KEY_TYPE = "type"; // used by `emitSharedJsEvent()`
     private static final String KEY_EVENT_TYPE = "eventType"; // used by `triggerJSEvent()`
-    private static final String KEY_DATA = "data";
+    private static final String KEY_DATA = "data"; // used by both
+
+    // Scope keys for event objects
+    private static final String SCOPE_TYPE_SESSION_EVENTS = "sessionEvents";
+    private static final String SCOPE_TYPE_PUBLISHER_EVENTS = "publisherEvents";
+    private static final String SCOPE_TYPE_SUBSCRIBER_EVENTS = "subscriberEvents";
 
     // Type keys for event objects
     private static final String EVENT_TYPE_SESSION_CONNECTED = "sessionConnected";
@@ -400,7 +401,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             }
             streamVideoDimensions.put(arg1.getStreamId(), videoDimensions);
 
-            triggerStreamEvent(arg1, KEY_PUBLISHER_EVENTS, EVENT_TYPE_STREAM_CREATED);
+            triggerStreamEvent(arg1, SCOPE_TYPE_PUBLISHER_EVENTS, EVENT_TYPE_STREAM_CREATED);
         }
 
         @Override
@@ -411,7 +412,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             streamHasVideo.remove(arg1.getStreamId());
             streamVideoDimensions.remove(arg1.getStreamId());
 
-            triggerStreamEvent(arg1, KEY_PUBLISHER_EVENTS, EVENT_TYPE_STREAM_DESTROYED);
+            triggerStreamEvent(arg1, SCOPE_TYPE_PUBLISHER_EVENTS, EVENT_TYPE_STREAM_DESTROYED);
         }
 
         @Override
@@ -431,8 +432,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             JSONObject data = new JSONObject();
             try {
                 data.put(DATA_KEY_AUDIO_LEVEL, audioLevel);
-                triggerJSEvent(KEY_PUBLISHER_EVENTS, EVENT_TYPE_AUDIO_LEVEL_UPDATED, data);
-                emitSharedJsEvent(EVENT_TYPE_AUDIO_LEVEL_UPDATED, data);
+                emitCommonEvent(SCOPE_TYPE_PUBLISHER_EVENTS, EVENT_TYPE_AUDIO_LEVEL_UPDATED, data);
             } catch (JSONException e) {
             }
         }
@@ -518,9 +518,8 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             String streamId = arg0.getStream().getStreamId();
             try {
                 eventData.put(DATA_KEY_STREAM_ID, streamId);
-                triggerJSEvent(KEY_SUBSCRIBER_EVENTS, EVENT_TYPE_CONNECTED, eventData);
-                triggerJSEvent(KEY_SESSION_EVENTS, EVENT_TYPE_SUBSCRIBED_TO_STREAM, eventData); // Backwards compatibility
-                emitSharedJsEvent(EVENT_TYPE_CONNECTED, eventData);
+                emitCommonEvent(SCOPE_TYPE_SUBSCRIBER_EVENTS, EVENT_TYPE_CONNECTED, eventData);
+                triggerJSEvent(SCOPE_TYPE_SESSION_EVENTS, EVENT_TYPE_SUBSCRIBED_TO_STREAM, eventData); // Backwards compatibility
             } catch (JSONException e) {
                 Timber.e("JSONException" + e.getMessage());
             }
@@ -535,8 +534,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             String streamId = arg0.getStream().getStreamId();
             try {
                 eventData.put(DATA_KEY_STREAM_ID, streamId);
-                triggerJSEvent(KEY_SUBSCRIBER_EVENTS, EVENT_TYPE_DISCONNECTED, eventData);
-                emitSharedJsEvent(EVENT_TYPE_DISCONNECTED, eventData);
+                emitCommonEvent(SCOPE_TYPE_SUBSCRIBER_EVENTS, EVENT_TYPE_DISCONNECTED, eventData);
             } catch (JSONException e) {
                 Timber.e("JSONException " + e.getMessage());
             }
@@ -552,8 +550,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             try {
                 eventData.put(DATA_KEY_ERROR_CODE, errorCode);
                 eventData.put(DATA_KEY_STREAM_ID, streamId);
-                triggerJSEvent(KEY_SESSION_EVENTS, EVENT_TYPE_SUBSCRIBED_TO_STREAM, eventData);
-                emitSharedJsEvent(EVENT_TYPE_SUBSCRIBED_TO_STREAM, eventData);
+                emitCommonEvent(SCOPE_TYPE_SESSION_EVENTS, EVENT_TYPE_SUBSCRIBED_TO_STREAM, eventData);
             } catch (JSONException e) {
                 Timber.e("JSONException " + e.getMessage());
             }
@@ -563,8 +560,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         // listeners
         @Override
         public void onVideoDataReceived(SubscriberKit arg0) {
-            triggerJSEvent(KEY_SUBSCRIBER_EVENTS, EVENT_TYPE_VIDEO_DATA_RECEIVED, null);
-            emitSharedJsEvent(EVENT_TYPE_VIDEO_DATA_RECEIVED, null);
+            emitCommonEvent(SCOPE_TYPE_SUBSCRIBER_EVENTS, EVENT_TYPE_VIDEO_DATA_RECEIVED, null);
         }
 
         @Override
@@ -572,22 +568,19 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             JSONObject data = new JSONObject();
             try {
                 data.put(DATA_KEY_REASON, reason);
-                triggerJSEvent(KEY_SUBSCRIBER_EVENTS, EVENT_TYPE_VIDEO_DISABLED, data);
-                emitSharedJsEvent(EVENT_TYPE_VIDEO_DISABLED, data);
+                emitCommonEvent(SCOPE_TYPE_SUBSCRIBER_EVENTS, EVENT_TYPE_VIDEO_DISABLED, data);
             } catch(JSONException e) {
             }
         }
 
         @Override
         public void onVideoDisableWarning(SubscriberKit arg0) {
-            triggerJSEvent(KEY_SUBSCRIBER_EVENTS, EVENT_TYPE_VIDEO_DISABLE_WARNING, null);
-            emitSharedJsEvent(EVENT_TYPE_VIDEO_DISABLE_WARNING, null);
+            emitCommonEvent(SCOPE_TYPE_SUBSCRIBER_EVENTS, EVENT_TYPE_VIDEO_DISABLE_WARNING, null);
         }
 
         @Override
         public void onVideoDisableWarningLifted(SubscriberKit arg0) {
-            triggerJSEvent(KEY_SUBSCRIBER_EVENTS, EVENT_TYPE_VIDEO_DISABLE_WARNING_LIFTED, null);
-            emitSharedJsEvent(EVENT_TYPE_VIDEO_DISABLE_WARNING_LIFTED, null);
+            emitCommonEvent(SCOPE_TYPE_SUBSCRIBER_EVENTS, EVENT_TYPE_VIDEO_DISABLE_WARNING_LIFTED, null);
         }
 
         @Override
@@ -595,8 +588,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             JSONObject data = new JSONObject();
             try {
                 data.put(DATA_KEY_REASON, reason);
-                triggerJSEvent(KEY_SUBSCRIBER_EVENTS, EVENT_TYPE_VIDEO_ENABLED, data);
-                emitSharedJsEvent(EVENT_TYPE_VIDEO_ENABLED, data);
+                emitCommonEvent(SCOPE_TYPE_SUBSCRIBER_EVENTS, EVENT_TYPE_VIDEO_ENABLED, data);
             } catch (JSONException ignored) {
             }
         }
@@ -606,8 +598,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             JSONObject data = new JSONObject();
             try {
                 data.put(DATA_KEY_AUDIO_LEVEL, audioLevel);
-                triggerJSEvent(KEY_SUBSCRIBER_EVENTS, EVENT_TYPE_AUDIO_LEVEL_UPDATED, data);
-                emitSharedJsEvent(EVENT_TYPE_AUDIO_LEVEL_UPDATED, data);
+                emitCommonEvent(SCOPE_TYPE_SUBSCRIBER_EVENTS, EVENT_TYPE_AUDIO_LEVEL_UPDATED, data);
             } catch (JSONException ignored) {
             }
         }
@@ -874,12 +865,18 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         return result;
     }
 
+    // emits to both trigger function and shared function to reduce boilerplate
+    private void emitCommonEvent(String scope, String type, JSONObject data) {
+        triggerJSEvent(scope, type, data);
+        emitSharedJsEvent(scope, type, data);
+    }
+
     /**
      * Variation of `triggerJSEvent()` that passes event data directly
      * to application code for more granular control.
      * (i.e., does not do any unwrapping / remapping from the plugin side)
      */
-    private void emitSharedJsEvent(String type, JSONObject data) {
+    private void emitSharedJsEvent(String scope, String type, JSONObject data) {
         Timber.d("emitSharedJsEvent -> %s", type);
         try {
             if (sharedEventContext == null) {
@@ -889,6 +886,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 data = JSON_OBJECT_EMPTY;
             }
             JSONObject payload = new JSONObject()
+                .put(KEY_SCOPE, scope)
                 .put(KEY_TYPE, type)
                 .put(KEY_DATA, data);
             PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, payload);
@@ -981,8 +979,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             data.put(DATA_KEY_CONNECTION, connection);
         } catch (JSONException e) {
         }
-        triggerJSEvent(KEY_SESSION_EVENTS, EVENT_TYPE_SESSION_CONNECTED, data);
-        emitSharedJsEvent(EVENT_TYPE_SESSION_CONNECTED, data);
+        emitCommonEvent(SCOPE_TYPE_SESSION_EVENTS, EVENT_TYPE_SESSION_CONNECTED, data);
     }
 
     @Override
@@ -1012,8 +1009,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             data.put(DATA_KEY_REASON, REASON_CLIENT_DISCONNECTED);
         } catch (JSONException ignored) {
         }
-        triggerJSEvent(KEY_SESSION_EVENTS, EVENT_TYPE_SESSION_DISCONNECTED, data);
-        emitSharedJsEvent(EVENT_TYPE_SESSION_DISCONNECTED, data);
+        emitCommonEvent(SCOPE_TYPE_SESSION_EVENTS, EVENT_TYPE_SESSION_DISCONNECTED, data);
     }
 
     // reconnection listener
@@ -1024,8 +1020,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     }
 
     public void emitSessionReconnectedEvent() {
-        triggerJSEvent(KEY_SESSION_EVENTS, EVENT_TYPE_SESSION_RECONNECTED, null);
-        emitSharedJsEvent(EVENT_TYPE_SESSION_RECONNECTED, null);
+        emitCommonEvent(SCOPE_TYPE_SESSION_EVENTS, EVENT_TYPE_SESSION_RECONNECTED, null);
     }
 
     @Override
@@ -1035,8 +1030,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     }
 
     public void emitSessionReconnectingEvent() {
-        triggerJSEvent(KEY_SESSION_EVENTS, EVENT_TYPE_SESSION_RECONNECTING, null);
-        emitSharedJsEvent(EVENT_TYPE_SESSION_RECONNECTING, null);
+        emitCommonEvent(SCOPE_TYPE_SESSION_EVENTS, EVENT_TYPE_SESSION_RECONNECTING, null);
     }
 
     @Override
@@ -1057,7 +1051,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     }
 
     public void emitStreamDroppedEvent(Stream arg1) {
-        triggerStreamEvent(arg1, KEY_SESSION_EVENTS, EVENT_TYPE_STREAM_DESTROYED);
+        triggerStreamEvent(arg1, SCOPE_TYPE_SESSION_EVENTS, EVENT_TYPE_STREAM_DESTROYED);
     }
 
     @Override
@@ -1079,7 +1073,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
     }
 
     public void emitStreamReceivedEvent(Stream arg1) {
-        triggerStreamEvent(arg1, KEY_SESSION_EVENTS, EVENT_TYPE_STREAM_CREATED);
+        triggerStreamEvent(arg1, SCOPE_TYPE_SESSION_EVENTS, EVENT_TYPE_STREAM_CREATED);
     }
 
     @Override
@@ -1103,8 +1097,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             data.put(DATA_KEY_CONNECTION, connection);
         } catch (JSONException e) {
         }
-        triggerJSEvent(KEY_SESSION_EVENTS, EVENT_TYPE_CONNECTION_CREATED, data);
-        emitSharedJsEvent(EVENT_TYPE_CONNECTION_CREATED, data);
+        emitCommonEvent(SCOPE_TYPE_SESSION_EVENTS, EVENT_TYPE_CONNECTION_CREATED, data);
     }
 
     public void onConnectionDestroyed(Session arg0, Connection arg1) {
@@ -1124,8 +1117,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             data.put(DATA_KEY_CONNECTION, connection);
         } catch (JSONException e) {
         }
-        triggerJSEvent(KEY_SESSION_EVENTS, EVENT_TYPE_CONNECTION_DESTROYED, data);
-        emitSharedJsEvent(EVENT_TYPE_CONNECTION_DESTROYED, data);
+        emitCommonEvent(SCOPE_TYPE_SESSION_EVENTS, EVENT_TYPE_CONNECTION_DESTROYED, data);
     }
 
     // signalListener
@@ -1139,8 +1131,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             if (arg3 != null) {
                 data.put(DATA_KEY_CONNECTION_ID, arg3.getConnectionId());
             }
-            triggerJSEvent(KEY_SESSION_EVENTS, EVENT_TYPE_SIGNAL_RECEIVED, data);
-            emitSharedJsEvent(EVENT_TYPE_SIGNAL_RECEIVED, data);
+            emitCommonEvent(SCOPE_TYPE_SESSION_EVENTS, EVENT_TYPE_SIGNAL_RECEIVED, data);
         } catch (JSONException ignored) {
         }
     }
@@ -1151,8 +1142,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         try {
             data.put(DATA_KEY_ID, id);
             data.put(DATA_KEY_NAME, name);
-            triggerJSEvent(KEY_SESSION_EVENTS, EVENT_TYPE_ARCHIVE_STARTED, data);
-            emitSharedJsEvent(EVENT_TYPE_ARCHIVE_STARTED, data);
+            emitCommonEvent(SCOPE_TYPE_SESSION_EVENTS, EVENT_TYPE_ARCHIVE_STARTED, data);
         } catch (JSONException e) {
             Timber.i("archive started: " + id + " - " + name);
         }
@@ -1162,8 +1152,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         JSONObject data = new JSONObject();
         try {
             data.put(DATA_KEY_ID, id);
-            triggerJSEvent(KEY_SESSION_EVENTS, EVENT_TYPE_ARCHIVE_STOPPED, data);
-            emitSharedJsEvent(EVENT_TYPE_ARCHIVE_STOPPED, data);
+            emitCommonEvent(SCOPE_TYPE_SESSION_EVENTS, EVENT_TYPE_ARCHIVE_STOPPED, data);
         } catch (JSONException e) {
             Timber.i("archive stopped: " + id);
         }
@@ -1209,8 +1198,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             data.put(DATA_KEY_NEW_VALUE, newValue);
             data.put(DATA_KEY_OLD_VALUE, oldValue);
             data.put(DATA_KEY_STREAM, streamData);
-            triggerJSEvent(KEY_SESSION_EVENTS, EVENT_TYPE_STREAM_PROPERTY_CHANGED, data);
-            emitSharedJsEvent(EVENT_TYPE_STREAM_PROPERTY_CHANGED, data);
+            emitCommonEvent(SCOPE_TYPE_SESSION_EVENTS, EVENT_TYPE_STREAM_PROPERTY_CHANGED, data);
         } catch (JSONException ignored) {
         }
     }
@@ -1232,8 +1220,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         try {
             JSONObject stream = createDataFromStream(arg1);
             data.put(DATA_KEY_STREAM, stream);
-            triggerJSEvent(eventType, subEvent, data);
-            emitSharedJsEvent(subEvent, data);
+            emitCommonEvent(eventType, subEvent, data);
         } catch (JSONException ignored) {
         }
     }
@@ -1373,9 +1360,9 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         }
         // This method was previously unused, so commenting out this `triggerJSEvent`
         // call to prevent introducing new / unexpected behaviors.
-        // triggerJSEvent(KEY_SESSION_EVENTS, EVENT_TYPE_SESSION_ERROR, data);
+        // triggerJSEvent(SCOPE_TYPE_SESSION_EVENTS, EVENT_TYPE_SESSION_ERROR, data);
 
-        emitSharedJsEvent(EVENT_TYPE_SESSION_ERROR, data);
+        emitSharedJsEvent(SCOPE_TYPE_SESSION_EVENTS, EVENT_TYPE_SESSION_ERROR, data);
     }
 
     @Override
