@@ -58,34 +58,16 @@ window.OT = {
    * Set a function map of events to be listened for, for example:
    * 
    * ```javascript
-   * OT.setSharedEventListenerMap({
-   *     overlayStateChanged: function (overlayState) { ... }
-   * });
+   * OT.setSharedEventListener(
+   *     function (payload) { ... },
+   *     function (error) { ... }
+   * );
    * ```
    * 
    * Available Events:
    * - overlayStateChanged - data is getOverlayState() response
    */
-  setSharedEventListenerMap: function(listenerMap) {
-    if (typeof listenerMap !== 'object' || listenerMap === null) {
-      console.log('ERROR: Listener object must be defined');
-      return;
-    }
-    var listener = function (payload) {
-      if (!payload || (typeof payload.type !== 'string')) {
-        return;
-      }
-      if (typeof listenerMap[payload.type] === 'function') {
-        listenerMap[payload.type](payload.data);
-      } else if (typeof listenerMap['onMessage'] === 'function') {
-        listenerMap['onMessage'](payload);
-      } else {
-        console.log('WARNING: OT.setSharedEventListenerMap() unhandled payload type = "' + payload.type + '"');
-      }
-    };
-    var error = function (err) {
-      listener({type: 'onError', data: err});
-    };
+  setSharedEventListener: function(listener, error) {
     return Cordova.exec(listener, error, OTPlugin, 'setSharedEventListener', []);
   }
 };
