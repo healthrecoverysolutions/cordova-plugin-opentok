@@ -30,7 +30,7 @@ function rewriteResourceImports(bundleId, sourceFileDirectory, sourceFileNames) 
         log(`rewriting resource imports for ${fileName} in directory ${sourceFileDirectory}`);
         const filePath = path.resolve(sourceFileDirectory, fileName);
 
-        if (!fs.existsSync(configXmlPath)) {
+        if (!fs.existsSync(filePath)) {
             warn(`source file not found at ${filePath}`);
             continue;
         }
