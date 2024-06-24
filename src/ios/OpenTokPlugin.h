@@ -28,6 +28,9 @@
 - (void)initSession:(CDVInvokedUrlCommand*)command;
 - (void)exceptionHandler:(CDVInvokedUrlCommand*)command;
 - (void)updateView:(CDVInvokedUrlCommand*)command;
+- (void)getOverlayState:(CDVInvokedUrlCommand*)command;
+- (void)setMinimized:(CDVInvokedUrlCommand*)command;
+- (void)setSharedEventListener:(CDVInvokedUrlCommand*)command;
 
 // Publisher
 - (void)publishAudio:(CDVInvokedUrlCommand*)command;

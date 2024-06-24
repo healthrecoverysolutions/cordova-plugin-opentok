@@ -47,6 +47,28 @@ window.OT = {
   },
   removeEventListener: function(type, handler) {
     return this.off(type, handler);
+  },
+  getOverlayState: function(success, error) {
+    return Cordova.exec(success, error, OTPlugin, 'getOverlayState', []);
+  },
+  setMinimized: function(minimized, success, error) {
+    return Cordova.exec(success, error, OTPlugin, 'setMinimized', [minimized]);
+  },
+  /**
+   * Set a function map of events to be listened for, for example:
+   * 
+   * ```javascript
+   * OT.setSharedEventListener(
+   *     function (payload) { ... },
+   *     function (error) { ... }
+   * );
+   * ```
+   * 
+   * Available Events:
+   * - overlayStateChanged - data is getOverlayState() response
+   */
+  setSharedEventListener: function(listener, error) {
+    return Cordova.exec(listener, error, OTPlugin, 'setSharedEventListener', []);
   }
 };
 
